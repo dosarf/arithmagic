@@ -1,24 +1,33 @@
-module Algorism.AdditionTests exposing (..)
+module Algorism.Addition.AdditionTests exposing (..)
 
 import Test exposing (..)
 import Expect
 import Fuzz exposing (list, int, intRange, tuple, string)
 import String
-import Algorism.Addition exposing (Model, Column, CalculationState, calculator, initColumn, initModel, initModelFor, numberOfDigits, parseNDigits, solve)
+import Algorism.Addition.Types exposing (Model, Column)
+import Algorism.Addition.Addition exposing (CalculationState, calculateColumn, initializeColumnFor, initializeFor, numberOfDigits, parseNDigits, solve)
 
 
 testSuite : Test
 testSuite =
-    describe "Algorithm.Addition tests"
-        [ describe "Algorism.Addition.initModel tests"
-            [ test "Algorism.Addition.initModel columnCount" <|
+    describe "Algorithm.Addition.(Types|State) tests"
+        [ describe "initializeColumnFor tests"
+            [ fuzz2 int int "initializeColumnFor invoked with two somethings" <|
+                \x y ->
+                    (Column Nothing (Just x) (Just y) Nothing)
+                        |> Expect.equal (initializeColumnFor (Just x) (Just y))
+            , fuzz int "initializeColumnFor invoked with one something" <|
+                \x ->
+                    (Column Nothing (Just x) Nothing Nothing)
+                        |> Expect.equal (initializeColumnFor (Just x) Nothing)
+            , fuzz int "initializeColumnFor invoked with one other thing" <|
+                \x ->
+                    (Column Nothing Nothing (Just x) Nothing)
+                        |> Expect.equal (initializeColumnFor Nothing (Just x))
+            , test "initializeColumnFor invoked with two nothings" <|
                 \() ->
-                    0
-                        |> Expect.equal (initModel).columnCount
-            , test "Algorism.Addition.initModel columns" <|
-                \() ->
-                    0
-                        |> Expect.equal (List.length (initModel).columns)
+                    (Column Nothing Nothing Nothing Nothing)
+                        |> Expect.equal (initializeColumnFor Nothing Nothing)
             ]
         , describe "parseNDigits tests"
             [ test "Negative expected length yield empty list" <|
@@ -96,108 +105,66 @@ testSuite =
                     (numberOfDigits -integer)
                         |> Expect.equal (numberOfDigits integer)
             ]
-        , describe "initColumn tests"
-            [ fuzz2 int int "Initcolumn invoked with two somethings" <|
-                \x y ->
-                    (Column Nothing (Just x) (Just y) Nothing)
-                        |> Expect.equal (initColumn (Just x) (Just y))
-            , fuzz int "initColumn invoked with one something" <|
-                \x ->
-                    (Column Nothing (Just x) Nothing Nothing)
-                        |> Expect.equal (initColumn (Just x) Nothing)
-            , fuzz int "initColumn invoked with one other thing" <|
-                \x ->
-                    (Column Nothing Nothing (Just x) Nothing)
-                        |> Expect.equal (initColumn Nothing (Just x))
-            , test "initColumn invoked with two nothings" <|
-                \() ->
-                    (Column Nothing Nothing Nothing Nothing)
-                        |> Expect.equal (initColumn Nothing Nothing)
-            ]
-        , describe "initModelFor tests"
+        , describe "initializeFor tests"
             [ test "Negative first operand is not supported" <|
                 \() ->
                     (Err "First operand is negative: -12")
-                        |> Expect.equal (initModelFor -12 23)
+                        |> Expect.equal (initializeFor -12 23)
             , test "Negative second operand is not supported" <|
                 \() ->
                     (Err "Second operand is negative: -12")
-                        |> Expect.equal (initModelFor 23 -12)
+                        |> Expect.equal (initializeFor 23 -12)
             , test "Two operands between 1 and 10" <|
                 \() ->
-                    (Ok
-                        { columnCount = 2
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing (Just 7) (Just 2) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor 7 2)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing (Just 7) (Just 2) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor 7 2)
             , fuzz (intRange 1 9) "One operand is less than 10, the other is zero" <|
                 \operand ->
-                    (Ok
-                        { columnCount = 2
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing (Just operand) (Just 0) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor operand 0)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing (Just operand) (Just 0) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor operand 0)
             , fuzz (intRange 1 9) "One operand is zero, other is less than 10" <|
                 \operand ->
-                    (Ok
-                        { columnCount = 2
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing (Just 0) (Just operand) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor 0 operand)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing (Just 0) (Just operand) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor 0 operand)
             , fuzz (intRange 10 99) "One operand is less than 100, the other is zero " <|
                 \operand ->
-                    (Ok
-                        { columnCount = 3
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing (Just <| operand // 10) Nothing Nothing)
-                            , (Column Nothing (Just <| rem operand 10) (Just 0) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor operand 0)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing (Just <| operand // 10) Nothing Nothing)
+                        , (Column Nothing (Just <| rem operand 10) (Just 0) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor operand 0)
             , test "A 3-digit number and a 2-digit integer" <|
                 \() ->
-                    (Ok
-                        { columnCount = 4
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing (Just 1) Nothing Nothing)
-                            , (Column Nothing (Just 2) (Just 7) Nothing)
-                            , (Column Nothing (Just 3) (Just 5) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor 123 75)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing (Just 1) Nothing Nothing)
+                        , (Column Nothing (Just 2) (Just 7) Nothing)
+                        , (Column Nothing (Just 3) (Just 5) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor 123 75)
             , test "A 3-digit number and a 5-digit integer" <|
                 \() ->
-                    (Ok
-                        { columnCount = 6
-                        , columns =
-                            [ (Column Nothing Nothing Nothing Nothing)
-                            , (Column Nothing Nothing (Just 7) Nothing)
-                            , (Column Nothing Nothing (Just 5) Nothing)
-                            , (Column Nothing (Just 3) (Just 4) Nothing)
-                            , (Column Nothing (Just 2) (Just 3) Nothing)
-                            , (Column Nothing (Just 1) (Just 2) Nothing)
-                            ]
-                        }
-                    )
-                        |> Expect.equal (initModelFor 321 75432)
+                    Ok
+                        [ (Column Nothing Nothing Nothing Nothing)
+                        , (Column Nothing Nothing (Just 7) Nothing)
+                        , (Column Nothing Nothing (Just 5) Nothing)
+                        , (Column Nothing (Just 3) (Just 4) Nothing)
+                        , (Column Nothing (Just 2) (Just 3) Nothing)
+                        , (Column Nothing (Just 1) (Just 2) Nothing)
+                        ]
+                        |> Expect.equal (initializeFor 321 75432)
             ]
-        , describe "calculator (internal function) tests"
+        , describe "calculateColumn (internal function) tests"
             [ test "First column producing no carry" <|
                 \() ->
                     { carry = 0
@@ -206,7 +173,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 4) (Just 3) Nothing)
                                 (CalculationState 0 [])
                             )
@@ -218,7 +185,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 5) (Just 6) Nothing)
                                 (CalculationState 0 [])
                             )
@@ -231,7 +198,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 2) (Just 6) Nothing)
                                 (CalculationState 0 [ (Column Nothing (Just 3) (Just 4) (Just 7)) ])
                             )
@@ -244,7 +211,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 4) (Just 6) Nothing)
                                 (CalculationState 0 [ (Column Nothing (Just 3) (Just 4) (Just 7)) ])
                             )
@@ -257,7 +224,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 4) (Just 4) Nothing)
                                 (CalculationState 1 [ (Column Nothing (Just 7) (Just 4) (Just 1)) ])
                             )
@@ -270,7 +237,7 @@ testSuite =
                         ]
                     }
                         |> Expect.equal
-                            (calculator
+                            (calculateColumn
                                 (Column Nothing (Just 5) (Just 4) Nothing)
                                 (CalculationState 1 [ (Column Nothing (Just 7) (Just 4) (Just 1)) ])
                             )
@@ -278,132 +245,114 @@ testSuite =
         , describe "Tests for solve function"
             [ test "0 + 0 = 0" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column Nothing (Just 0) (Just 0) (Just 0))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column Nothing (Just 0) (Just 0) (Just 0))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 0) (Just 0) Nothing)
                                 ]
-                                |> solve
                             )
             , test "1 + 0 = 0" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column Nothing (Just 1) (Just 0) (Just 1))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column Nothing (Just 1) (Just 0) (Just 1))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 1) (Just 0) Nothing)
                                 ]
-                                |> solve
                             )
             , test "1 + 8 = 9" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column Nothing (Just 1) (Just 8) (Just 9))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column Nothing (Just 1) (Just 8) (Just 9))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 1) (Just 8) Nothing)
                                 ]
-                                |> solve
                             )
             , test "2 + 8 = 10" <|
                 \() ->
-                    Model 2
-                        [ (Column (Just 1) Nothing Nothing (Just 1))
-                        , (Column Nothing (Just 2) (Just 8) (Just 0))
-                        ]
+                    [ (Column (Just 1) Nothing Nothing (Just 1))
+                    , (Column Nothing (Just 2) (Just 8) (Just 0))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 2) (Just 8) Nothing)
                                 ]
-                                |> solve
                             )
             , test "13 + 24 = 37" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column Nothing (Just 1) (Just 2) (Just 3))
-                        , (Column Nothing (Just 3) (Just 4) (Just 7))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column Nothing (Just 1) (Just 2) (Just 3))
+                    , (Column Nothing (Just 3) (Just 4) (Just 7))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 1) (Just 2) Nothing)
                                 , (Column Nothing (Just 3) (Just 4) Nothing)
                                 ]
-                                |> solve
                             )
             , test "17 + 24 = 41" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column (Just 1) (Just 1) (Just 2) (Just 4))
-                        , (Column Nothing (Just 7) (Just 4) (Just 1))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column (Just 1) (Just 1) (Just 2) (Just 4))
+                    , (Column Nothing (Just 7) (Just 4) (Just 1))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 1) (Just 2) Nothing)
                                 , (Column Nothing (Just 7) (Just 4) Nothing)
                                 ]
-                                |> solve
                             )
             , test "63 + 36 = 99" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column Nothing (Just 6) (Just 3) (Just 9))
-                        , (Column Nothing (Just 3) (Just 6) (Just 9))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column Nothing (Just 6) (Just 3) (Just 9))
+                    , (Column Nothing (Just 3) (Just 6) (Just 9))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 6) (Just 3) Nothing)
                                 , (Column Nothing (Just 3) (Just 6) Nothing)
                                 ]
-                                |> solve
                             )
             , test "63 + 37 = 100" <|
                 \() ->
-                    Model 2
-                        [ (Column (Just 1) Nothing Nothing (Just 1))
-                        , (Column (Just 1) (Just 6) (Just 3) (Just 0))
-                        , (Column Nothing (Just 3) (Just 7) (Just 0))
-                        ]
+                    [ (Column (Just 1) Nothing Nothing (Just 1))
+                    , (Column (Just 1) (Just 6) (Just 3) (Just 0))
+                    , (Column Nothing (Just 3) (Just 7) (Just 0))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 6) (Just 3) Nothing)
                                 , (Column Nothing (Just 3) (Just 7) Nothing)
                                 ]
-                                |> solve
                             )
             , test "173 + 37 = 210" <|
                 \() ->
-                    Model 2
-                        [ (Column Nothing Nothing Nothing Nothing)
-                        , (Column (Just 1) (Just 1) Nothing (Just 2))
-                        , (Column (Just 1) (Just 7) (Just 3) (Just 1))
-                        , (Column Nothing (Just 3) (Just 7) (Just 0))
-                        ]
+                    [ (Column Nothing Nothing Nothing Nothing)
+                    , (Column (Just 1) (Just 1) Nothing (Just 2))
+                    , (Column (Just 1) (Just 7) (Just 3) (Just 1))
+                    , (Column Nothing (Just 3) (Just 7) (Just 0))
+                    ]
                         |> Expect.equal
-                            (Model 2
+                            (solve
                                 [ (Column Nothing Nothing Nothing Nothing)
                                 , (Column Nothing (Just 1) Nothing Nothing)
                                 , (Column Nothing (Just 7) (Just 3) Nothing)
                                 , (Column Nothing (Just 3) (Just 7) Nothing)
                                 ]
-                                |> solve
                             )
             ]
         ]

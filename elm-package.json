@@ -5,7 +5,7 @@
     "license": "BSD3",
     "source-directories": [
         ".",
-        "Algorism"
+        "src"
     ],
     "exposed-modules": [],
     "dependencies": {

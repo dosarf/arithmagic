@@ -1,29 +1,10 @@
-module Algorism.Addition exposing (..)
+module Algorism.Addition.Addition exposing (..)
+
+import Algorism.Addition.Types exposing (Column, Model, Msg(..))
 
 
-type alias Column =
-    { carry : Maybe Int
-    , firstOperand : Maybe Int
-    , secondOperand : Maybe Int
-    , result : Maybe Int
-    }
-
-
-type alias Model =
-    { columnCount : Int
-    , columns : List Column
-    }
-
-
-initModel : Model
-initModel =
-    { columnCount = 0
-    , columns = []
-    }
-
-
-initModelFor : Int -> Int -> Result String Model
-initModelFor firstOperand secondOperand =
+initializeFor : Int -> Int -> Result String (List Column)
+initializeFor firstOperand secondOperand =
     if firstOperand < 0 then
         Err <| "First operand is negative: " ++ (toString firstOperand)
     else if secondOperand < 0 then
@@ -39,7 +20,7 @@ initModelFor firstOperand secondOperand =
             secondDigits =
                 parseNDigits columnCount secondOperand
         in
-            Ok <| Model columnCount (List.map2 (\x y -> initColumn x y) firstDigits secondDigits)
+            Ok <| List.map2 (\x y -> initializeColumnFor x y) firstDigits secondDigits
 
 
 parseNDigits : Int -> Int -> List (Maybe Int)
@@ -70,8 +51,8 @@ parseNDigits expectedLength integer =
             List.concat [ digitsOnLeft, [ Just rightMostDigit ] ]
 
 
-initColumn : Maybe Int -> Maybe Int -> Column
-initColumn firstOperand secondOperand =
+initializeColumnFor : Maybe Int -> Maybe Int -> Column
+initializeColumnFor firstOperand secondOperand =
     Column Nothing firstOperand secondOperand Nothing
 
 
@@ -91,8 +72,8 @@ type alias CalculationState =
     }
 
 
-calculator : Column -> CalculationState -> CalculationState
-calculator newColumn currentState =
+calculateColumn : Column -> CalculationState -> CalculationState
+calculateColumn newColumn currentState =
     let
         carryFromPrevious =
             currentState.carry
@@ -146,30 +127,13 @@ calculator newColumn currentState =
         }
 
 
-solve : Model -> Model
-solve model =
+solve : List Column -> List Column
+solve columns =
     let
         seedState =
             CalculationState 0 []
 
         finalState =
-            List.foldr calculator seedState model.columns
+            List.foldr calculateColumn seedState columns
     in
-        Model model.columnCount finalState.columnsDone
-
-
-
-{-
-   verify : Model -> Model -> List Feedback ?
-   verifyUserStep : Model -> UserStep ? -> (List Feedback ?, Maybe Animation)
-
-     - user step : in a column, writing / modifying / deleting a result / carry
-     - feedback : Correc result / carry in column, or Incorrect result / carry + hint text
-     - animation: carry to a column
-
-     use cases:
-      - setting correct / incorrect value at the next correct position
-      - deleting a value at any position (earlier, later)
-      - re-setting a value at any earlier position
-      - setting a value in a later position
--}
+        finalState.columnsDone
