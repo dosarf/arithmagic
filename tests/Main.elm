@@ -4,7 +4,7 @@ import Test exposing (describe)
 import Test.Runner.Node exposing (run, TestProgram)
 import Json.Encode exposing (Value)
 import Algorism.Addition.AdditionTests
-import Algorism.Addition.StateTests
+import Algorism.Operands.StateTests
 
 
 main : TestProgram
@@ -12,7 +12,7 @@ main =
     run emit <|
         describe "Algorism tests"
             [ Algorism.Addition.AdditionTests.testSuite
-            , Algorism.Addition.StateTests.testSuite
+            , Algorism.Operands.StateTests.testSuite
             ]
 
 

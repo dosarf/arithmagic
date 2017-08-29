@@ -14,14 +14,14 @@ view model =
         Nothing ->
             table
                 []
-                [ rowView "" model.addition .carry createInputTd
-                , rowView "" model.addition .firstOperand createTextTd
-                , rowView "+" model.addition .secondOperand createTextTd
-                , rowView "" model.addition .result createInputTd
+                [ rowView "" model .carry createInputTd
+                , rowView "" model .firstOperand createTextTd
+                , rowView "+" model .secondOperand createTextTd
+                , rowView "" model .result createInputTd
                 ]
 
 
-rowView : String -> Algorism.Addition.Model -> (Algorism.Addition.Column -> Maybe Int) -> (Maybe Int -> Html Msg) -> Html Msg
+rowView : String -> Algorism.Addition.Types.Model -> (Algorism.Addition.Types.Column -> Maybe Int) -> (Maybe Int -> Html Msg) -> Html Msg
 rowView firstField addition rowSelector tdContentCreator =
     tr []
         (List.append

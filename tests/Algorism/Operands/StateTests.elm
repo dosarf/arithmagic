@@ -1,0 +1,104 @@
+module Algorism.Operands.StateTests exposing (testSuite)
+
+import Test exposing (..)
+import Expect
+import Algorism.Operands.Types exposing (Model, Msg(..), Msg2Parent(..))
+import Algorism.Operands.State exposing (update, model2OutMsg, updateWithMsg2Parent)
+import Guarded.Input
+import Guarded.Input.Parsers
+
+
+validOperand12 : Guarded.Input.Model Int
+validOperand12 =
+    Guarded.Input.initFor 12
+
+
+validOperand34 : Guarded.Input.Model Int
+validOperand34 =
+    Guarded.Input.initFor 34
+
+
+validMsg34 : Guarded.Input.Msg Int
+validMsg34 =
+    Guarded.Input.Parsers.intParser "34"
+
+
+undefinedOperand : Guarded.Input.Model Int
+undefinedOperand =
+    Guarded.Input.initWith Guarded.Input.Parsers.intParser ""
+
+
+undefinedMsg : Guarded.Input.Msg Int
+undefinedMsg =
+    Guarded.Input.Parsers.intParser ""
+
+
+workInProgressOperand : Guarded.Input.Model Int
+workInProgressOperand =
+    Guarded.Input.initWith Guarded.Input.Parsers.intParser "-"
+
+
+workInProgressMsg : Guarded.Input.Msg Int
+workInProgressMsg =
+    Guarded.Input.Parsers.intParser "-"
+
+
+someModel : Model
+someModel =
+    Model validOperand12 validOperand34
+
+
+testSuite : Test
+testSuite =
+    describe "Algorithm.Operands.State tests"
+        [ describe "update tests for FirstOperandChanged messages"
+            [ test "first operand -> undefined" <|
+                \() ->
+                    { someModel | firstOperand = undefinedOperand }
+                        |> Expect.equal (update (FirstOperandChanged undefinedMsg) someModel |> Tuple.first)
+            , test "first operand -> work-in-progress" <|
+                \() ->
+                    { someModel | firstOperand = workInProgressOperand }
+                        |> Expect.equal (update (FirstOperandChanged workInProgressMsg) someModel |> Tuple.first)
+            , test "first operand -> 34" <|
+                \() ->
+                    { someModel | firstOperand = validOperand34 }
+                        |> Expect.equal (update (FirstOperandChanged validMsg34) someModel |> Tuple.first)
+            ]
+        , describe "update tests for SecondOperandChanged messages"
+            [ test "second operand -> undefined" <|
+                \() ->
+                    { someModel | secondOperand = undefinedOperand }
+                        |> Expect.equal (update (SecondOperandChanged undefinedMsg) someModel |> Tuple.first)
+            , test "second operand -> work-in-progress" <|
+                \() ->
+                    { someModel | secondOperand = workInProgressOperand }
+                        |> Expect.equal (update (SecondOperandChanged workInProgressMsg) someModel |> Tuple.first)
+            , test "second operand -> 34" <|
+                \() ->
+                    { someModel | secondOperand = validOperand34 }
+                        |> Expect.equal (update (SecondOperandChanged validMsg34) someModel |> Tuple.first)
+            ]
+        , describe "model2OutMsg tests"
+            [ test "First operand work-in-progress is regarded as InvalidOperands" <|
+                \() ->
+                    InvalidOperands
+                        |> Expect.equal (model2OutMsg <| { someModel | firstOperand = workInProgressOperand })
+            , test "First operand undefined is regarded as InvalidOperands" <|
+                \() ->
+                    InvalidOperands
+                        |> Expect.equal (model2OutMsg <| { someModel | firstOperand = undefinedOperand })
+            , test "Second operand work-in-progress is regarded as InvalidOperands" <|
+                \() ->
+                    InvalidOperands
+                        |> Expect.equal (model2OutMsg <| { someModel | secondOperand = workInProgressOperand })
+            , test "Second operand undefined is regarded as InvalidOperands" <|
+                \() ->
+                    InvalidOperands
+                        |> Expect.equal (model2OutMsg <| { someModel | secondOperand = undefinedOperand })
+            , test "Both operands defined is regarded as ValidOperands" <|
+                \() ->
+                    ValidOperands ( 12, 34 )
+                        |> Expect.equal (model2OutMsg <| someModel)
+            ]
+        ]

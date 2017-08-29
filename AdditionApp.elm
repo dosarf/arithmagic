@@ -1,123 +1,104 @@
-module Main exposing (..)
+module AdditionApp exposing (..)
 
-import Html exposing (Html, button, div, input, table, text, tr, td)
-import Html.Attributes exposing (placeholder, value)
-import Html.Events exposing (onClick, onInput)
-import String
-import Algorism.Addition exposing (initModel, initModelFor, solve, Column)
+import Html exposing (Html, button, div, input, text)
+import Html.Attributes exposing (classList, disabled, value)
+import Html.Events exposing (onClick)
+import Algorism.Operands.Types
+import Algorism.Operands.State
+import Algorism.Operands.View
+import Algorism.Addition.Addition
+import Algorism.Addition.Types
+import Algorism.Addition.State
+import Algorism.Addition.View
+
+
+-- TODO either use CSS classes/colors, or discard them from index.html for now
+
+
+type alias Operands =
+    { firstOperand : Int
+    , secondOperand : Int
+    }
 
 
 type alias Model =
-    { firstOperand : Maybe Int
-    , secondOperand : Maybe Int
-    , error : Maybe String
-    , addition : Algorism.Addition.Model
+    { inputModel : Algorism.Operands.Types.Model
+    , maybeOperands : Maybe Operands
+    , addition : Algorism.Addition.Types.Model
     }
 
 
 initialModel : Model
 initialModel =
-    { firstOperand = Nothing
-    , secondOperand = Nothing
-    , error = Nothing
-    , addition = initModel
+    { inputModel = Algorism.Operands.State.init
+    , maybeOperands = Nothing
+    , addition = Algorism.Addition.State.init
     }
 
 
-type IntOperandChangeInfo
-    = Undefined
-    | InvalidInt ( String, String )
-    | ValidInt Int
-
-
 type Msg
-    = FirstOperandChanged IntOperandChangeInfo
-    | SecondOperandChanged IntOperandChangeInfo
+    = InputChanged Algorism.Operands.Types.Msg
+    | AdditionChanged Algorism.Addition.Types.Msg
     | Calculate
-    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        FirstOperandChanged Undefined ->
-            ( { model
-                | firstOperand = Nothing
-                , error = Nothing
-              }
-            , Cmd.none
-            )
+        InputChanged operandsMsg ->
+            let
+                ( inputModel, msg2Parent, subCmd ) =
+                    Algorism.Operands.State.updateWithMsg2Parent operandsMsg model.inputModel
 
-        FirstOperandChanged (ValidInt firstOperand) ->
-            ( { model
-                | firstOperand = Just firstOperand
-                , error = Nothing
-              }
-            , Cmd.none
-            )
+                maybeOperands =
+                    case msg2Parent of
+                        Algorism.Operands.Types.InvalidOperands ->
+                            Nothing
 
-        FirstOperandChanged (InvalidInt ( string, error )) ->
-            ( { model
-                | firstOperand = model.firstOperand
-                , error = Just error
-              }
-            , Cmd.none
-            )
+                        Algorism.Operands.Types.ValidOperands ( firstOperand, secondOperand ) ->
+                            Just (Operands firstOperand secondOperand)
 
-        SecondOperandChanged Undefined ->
-            ( { model
-                | secondOperand = Nothing
-                , error = Nothing
-              }
-            , Cmd.none
-            )
+                newAdditionResultColumns =
+                    case msg2Parent of
+                        Algorism.Operands.Types.InvalidOperands ->
+                            Err "Invalid"
 
-        SecondOperandChanged (ValidInt secondOperand) ->
-            ( { model
-                | secondOperand = Just secondOperand
-                , error = Nothing
-              }
-            , Cmd.none
-            )
+                        Algorism.Operands.Types.ValidOperands ( firstOperand, secondOperand ) ->
+                            Algorism.Addition.Addition.initializeFor firstOperand secondOperand
 
-        SecondOperandChanged (InvalidInt ( string, error )) ->
-            ( { model
-                | secondOperand = model.secondOperand
-                , error = Just error
-              }
-            , Cmd.none
-            )
+                newAddition =
+                    case newAdditionResultColumns of
+                        Err _ ->
+                            model.addition
+
+                        Ok columns ->
+                            Algorism.Addition.Types.Model columns Nothing
+            in
+                ( { model
+                    | inputModel = inputModel
+                    , maybeOperands = maybeOperands
+                    , addition = newAddition
+                  }
+                , Cmd.map InputChanged subCmd
+                )
+
+        AdditionChanged additionMsg ->
+            let
+                ( newAddition, subCmd ) =
+                    Algorism.Addition.State.update additionMsg model.addition
+            in
+                ( { model | addition = newAddition }
+                , Cmd.map AdditionChanged subCmd
+                )
 
         Calculate ->
             let
-                firstOperand =
-                    Maybe.withDefault 0 model.firstOperand
-
-                secondOperand =
-                    Maybe.withDefault 0 model.secondOperand
-
-                additionResult =
-                    initModelFor firstOperand secondOperand
+                solvedColumns =
+                    Algorism.Addition.Addition.solve model.addition.columns
             in
-                case additionResult of
-                    Ok addition ->
-                        ( { model
-                            | addition = solve addition
-                            , error = Nothing
-                          }
-                        , Cmd.none
-                        )
-
-                    Err error ->
-                        ( { model
-                            | addition = initModel
-                            , error = Just error
-                          }
-                        , Cmd.none
-                        )
-
-        _ ->
-            ( model, Cmd.none )
+                ( { model | addition = Algorism.Addition.Types.Model solvedColumns Nothing }
+                , Cmd.none
+                )
 
 
 view : Model -> Html Msg
@@ -125,20 +106,17 @@ view model =
     div []
         [ div []
             [ text "Addition:"
-            , input
-                [ onInput (string2IntOperandChangeInfo >> FirstOperandChanged)
-                , value (operandToString model.firstOperand)
-                ]
-                []
-            , text "+"
-            , input
-                [ onInput (string2IntOperandChangeInfo >> SecondOperandChanged)
-                , value (operandToString model.secondOperand)
-                ]
-                []
+            , Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
             ]
-        , button [ onClick Calculate ] [ text "Calculate" ]
-        , solutionView model
+        , button
+            [ onClick Calculate
+            , disabled (not <| hasValidOperands model)
+            ]
+            [ text "Calculate" ]
+        , div
+            []
+            [ Html.map AdditionChanged (Algorism.Addition.View.view model.addition)
+            ]
         ]
 
 
@@ -156,28 +134,11 @@ main =
         }
 
 
-operandToString : Maybe Int -> String
-operandToString maybeOperand =
-    case maybeOperand of
+hasValidOperands : Model -> Bool
+hasValidOperands model =
+    case model.maybeOperands of
+        Just _ ->
+            True
+
         Nothing ->
-            ""
-
-        Just operand ->
-            toString operand
-
-
-string2IntOperandChangeInfo : String -> IntOperandChangeInfo
-string2IntOperandChangeInfo string =
-    if string == "" then
-        Undefined
-    else
-        let
-            operandResult =
-                String.toInt string
-        in
-            case operandResult of
-                Ok operand ->
-                    ValidInt operand
-
-                Err error ->
-                    InvalidInt ( string, error )
+            False
