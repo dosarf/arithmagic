@@ -11,13 +11,13 @@ view : Model -> Html Msg
 view model =
     div []
         [ input
-            [ Guarded.Input.parseOnInput FirstOperandChanged Guarded.Input.Parsers.intParser
+            [ Guarded.Input.parseOnInput FirstOperandChanged model.firstParser
             , value <| Guarded.Input.inputString model.firstOperand
             ]
             []
         , text "+"
         , input
-            [ Guarded.Input.parseOnInput SecondOperandChanged Guarded.Input.Parsers.intParser
+            [ Guarded.Input.parseOnInput SecondOperandChanged model.secondParser
             , value <| Guarded.Input.inputString model.secondOperand
             ]
             []

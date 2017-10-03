@@ -2,8 +2,8 @@ module Algorism.Operands.StateTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect
-import Algorism.Operands.Types exposing (Model, Msg(..), Msg2Parent(..))
-import Algorism.Operands.State exposing (update, model2OutMsg, updateWithMsg2Parent)
+import Algorism.Operands.Types exposing (Model, Msg(..))
+import Algorism.Operands.State exposing (update, operandsOf)
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -79,26 +79,32 @@ testSuite =
                     { someModel | secondOperand = validOperand34 }
                         |> Expect.equal (update (SecondOperandChanged validMsg34) someModel |> Tuple.first)
             ]
-        , describe "model2OutMsg tests"
-            [ test "First operand work-in-progress is regarded as InvalidOperands" <|
+        , describe "operandsOf tests"
+            [ test "First operand work-in-progress yields Err" <|
                 \() ->
-                    InvalidOperands
-                        |> Expect.equal (model2OutMsg <| { someModel | firstOperand = workInProgressOperand })
-            , test "First operand undefined is regarded as InvalidOperands" <|
+                    Expect.true "1st op wip" ({ someModel | firstOperand = workInProgressOperand } |> operandsOf |> isErrorResult)
+            , test "First operand undefined yields Err" <|
                 \() ->
-                    InvalidOperands
-                        |> Expect.equal (model2OutMsg <| { someModel | firstOperand = undefinedOperand })
-            , test "Second operand work-in-progress is regarded as InvalidOperands" <|
+                    Expect.true "1st op undef" ({ someModel | firstOperand = undefinedOperand } |> operandsOf |> isErrorResult)
+            , test "Second operand work-in-progress yields Err" <|
                 \() ->
-                    InvalidOperands
-                        |> Expect.equal (model2OutMsg <| { someModel | secondOperand = workInProgressOperand })
-            , test "Second operand undefined is regarded as InvalidOperands" <|
+                    Expect.true "2nd op wip" ({ someModel | secondOperand = workInProgressOperand } |> operandsOf |> isErrorResult)
+            , test "Second operand undefined yields Err" <|
                 \() ->
-                    InvalidOperands
-                        |> Expect.equal (model2OutMsg <| { someModel | secondOperand = undefinedOperand })
-            , test "Both operands defined is regarded as ValidOperands" <|
+                    Expect.true "2nd op undef" ({ someModel | secondOperand = undefinedOperand } |> operandsOf |> isErrorResult)
+            , test "Both operands defined yields operand pair" <|
                 \() ->
-                    ValidOperands ( 12, 34 )
-                        |> Expect.equal (model2OutMsg <| someModel)
+                    Ok ( 12, 34 )
+                        |> Expect.equal (operandsOf someModel)
             ]
         ]
+
+
+isErrorResult : Result String ( Int, Int ) -> Bool
+isErrorResult result =
+    case result of
+        Err _ ->
+            True
+
+        _ ->
+            False

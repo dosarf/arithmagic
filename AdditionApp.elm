@@ -10,6 +10,8 @@ import Algorism.Addition.Addition
 import Algorism.Addition.Types
 import Algorism.Addition.State
 import Algorism.Addition.View
+import Guarded.Input
+import Guarded.Input.Parsers
 
 
 -- TODO either use CSS classes/colors, or discard them from index.html for now
@@ -28,9 +30,29 @@ type alias Model =
     }
 
 
+maxOperand : Int
+maxOperand =
+    999
+
+
+operandIntChecker : Int -> Result String Int
+operandIntChecker =
+    Guarded.Input.Parsers.positiveNumberChecker >> Result.andThen (Guarded.Input.Parsers.boundedNumberChecker (<=) maxOperand "Too big")
+
+
+operandIntConverter : String -> Result String Int
+operandIntConverter =
+    Guarded.Input.Parsers.intConverter >> Result.andThen operandIntChecker
+
+
+operandParser : String -> Guarded.Input.Msg Int
+operandParser =
+    Guarded.Input.parser operandIntConverter Guarded.Input.Parsers.nothingIsWorkInProgress
+
+
 initialModel : Model
 initialModel =
-    { inputModel = Algorism.Operands.State.init
+    { inputModel = Algorism.Operands.State.initWith operandParser operandParser
     , maybeOperands = Nothing
     , addition = Algorism.Addition.State.init
     }
@@ -47,24 +69,18 @@ update message model =
     case message of
         InputChanged operandsMsg ->
             let
-                ( inputModel, msg2Parent, subCmd ) =
-                    Algorism.Operands.State.updateWithMsg2Parent operandsMsg model.inputModel
+                ( inputModel, subCmd ) =
+                    Algorism.Operands.State.update operandsMsg model.inputModel
 
-                maybeOperands =
-                    case msg2Parent of
-                        Algorism.Operands.Types.InvalidOperands ->
-                            Nothing
+                ( maybeOperands, newAdditionResultColumns ) =
+                    case (Algorism.Operands.State.operandsOf inputModel) of
+                        Err err ->
+                            ( Nothing, Err err )
 
-                        Algorism.Operands.Types.ValidOperands ( firstOperand, secondOperand ) ->
-                            Just (Operands firstOperand secondOperand)
-
-                newAdditionResultColumns =
-                    case msg2Parent of
-                        Algorism.Operands.Types.InvalidOperands ->
-                            Err "Invalid"
-
-                        Algorism.Operands.Types.ValidOperands ( firstOperand, secondOperand ) ->
-                            Algorism.Addition.Addition.initializeFor firstOperand secondOperand
+                        Ok ( firstOperand, secondOperand ) ->
+                            ( Just (Operands firstOperand secondOperand)
+                            , Algorism.Addition.Addition.initializeFor firstOperand secondOperand
+                            )
 
                 newAddition =
                     case newAdditionResultColumns of

@@ -1,19 +1,22 @@
 module Algorism.Operands.State exposing (..)
 
 import Guarded.Input
-import Algorism.Operands.Types exposing (Model, Msg(..), Msg2Parent(..))
-
-
--- TODO do Operands really need message to the parent?
--- TODO allow initialization for inputs with boundaries
--- TODO get rid of Maybe errors, wherever possible
+import Guarded.Input.Parsers
+import Algorism.Operands.Types exposing (Model, Msg(..))
 
 
 init : Model
 init =
     { firstOperand = Guarded.Input.init
     , secondOperand = Guarded.Input.init
+    , firstParser = Guarded.Input.Parsers.nonNegativeIntParser
+    , secondParser = Guarded.Input.Parsers.nonNegativeIntParser
     }
+
+
+initWith : (String -> Guarded.Input.Msg Int) -> (String -> Guarded.Input.Msg Int) -> Model
+initWith firstParser secondParser =
+    Model Guarded.Input.init Guarded.Input.init firstParser secondParser
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -38,21 +41,8 @@ update message model =
                 )
 
 
-
--- API for a parent component to learn about valid operands
-
-
-updateWithMsg2Parent : Msg -> Model -> ( Model, Msg2Parent, Cmd Msg )
-updateWithMsg2Parent message model =
-    let
-        ( newModel, cmd ) =
-            update message model
-    in
-        ( newModel, model2OutMsg newModel, cmd )
-
-
-model2OutMsg : Model -> Msg2Parent
-model2OutMsg model =
+operandsOf : Model -> Result String ( Int, Int )
+operandsOf model =
     let
         firstOperandResult =
             Guarded.Input.toResult model.firstOperand
@@ -62,7 +52,7 @@ model2OutMsg model =
     in
         case ( firstOperandResult, secondOperandResult ) of
             ( Ok firstOperand, Ok secondOperand ) ->
-                ValidOperands ( firstOperand, secondOperand )
+                Ok ( firstOperand, secondOperand )
 
             _ ->
-                InvalidOperands
+                Err "(some) operands unavailable"
