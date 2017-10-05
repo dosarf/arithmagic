@@ -6,7 +6,6 @@ import Html.Events exposing (onClick)
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
-import Algorism.Addition.Addition
 import Algorism.Addition.Types
 import Algorism.Addition.State
 import Algorism.Addition.View
@@ -72,23 +71,23 @@ update message model =
                 ( inputModel, subCmd ) =
                     Algorism.Operands.State.update operandsMsg model.inputModel
 
-                ( maybeOperands, newAdditionResultColumns ) =
+                ( maybeOperands, newAdditionResult ) =
                     case (Algorism.Operands.State.operandsOf inputModel) of
                         Err err ->
                             ( Nothing, Err err )
 
                         Ok ( firstOperand, secondOperand ) ->
                             ( Just (Operands firstOperand secondOperand)
-                            , Algorism.Addition.Addition.initializeFor firstOperand secondOperand
+                            , Algorism.Addition.Types.initializeFor firstOperand secondOperand
                             )
 
                 newAddition =
-                    case newAdditionResultColumns of
+                    case newAdditionResult of
                         Err _ ->
                             model.addition
 
-                        Ok columns ->
-                            Algorism.Addition.Types.Model columns Nothing
+                        Ok addition ->
+                            addition
             in
                 ( { model
                     | inputModel = inputModel
@@ -109,10 +108,10 @@ update message model =
 
         Calculate ->
             let
-                solvedColumns =
-                    Algorism.Addition.Addition.solve model.addition.columns
+                newAddition =
+                    Algorism.Addition.Types.solve model.addition
             in
-                ( { model | addition = Algorism.Addition.Types.Model solvedColumns Nothing }
+                ( { model | addition = newAddition }
                 , Cmd.none
                 )
 
