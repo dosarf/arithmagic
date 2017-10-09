@@ -1,8 +1,7 @@
 module AdditionApp exposing (..)
 
-import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (classList, disabled, value)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, input, text)
+import Html.Attributes exposing (classList, value)
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
@@ -60,7 +59,6 @@ initialModel =
 type Msg
     = InputChanged Algorism.Operands.Types.Msg
     | AdditionChanged Algorism.Addition.Types.Msg
-    | Calculate
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,7 +85,7 @@ update message model =
                             model.addition
 
                         Ok addition ->
-                            addition
+                            Algorism.Addition.Types.solve addition
             in
                 ( { model
                     | inputModel = inputModel
@@ -106,15 +104,6 @@ update message model =
                 , Cmd.map AdditionChanged subCmd
                 )
 
-        Calculate ->
-            let
-                newAddition =
-                    Algorism.Addition.Types.solve model.addition
-            in
-                ( { model | addition = newAddition }
-                , Cmd.none
-                )
-
 
 view : Model -> Html Msg
 view model =
@@ -123,11 +112,6 @@ view model =
             [ text "Addition:"
             , Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
             ]
-        , button
-            [ onClick Calculate
-            , disabled (not <| hasValidOperands model)
-            ]
-            [ text "Calculate" ]
         , div
             []
             [ Html.map AdditionChanged (Algorism.Addition.View.view model.addition)
@@ -147,13 +131,3 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
-
-
-hasValidOperands : Model -> Bool
-hasValidOperands model =
-    case model.maybeOperands of
-        Just _ ->
-            True
-
-        Nothing ->
-            False
