@@ -8,8 +8,10 @@ import Guarded.Input.Parsers
 
 
 {-
-   CSS classes: algorism-addition-table, algorism-addition-static-tr, algorism-addition-static-td,
-   algorism-addition-editable-tr, algorism-addition-editable-td, algorism-addition-input-correct,
+   TODO document these CSS classes:
+   algorism-addition-table, algorism-addition-static-tr, algorism-addition-static-td,
+   algorism-addition-editable-tr, algorism-addition-editable-td,
+   algorism-addition-input, algorism-addition-input-correct,
    algorism-addition-input-incorrect, algorism-addition-input-unnecessary, algorism-addition-input-missing,
    algorism-addition-input-correct-empty
 -}
@@ -99,7 +101,10 @@ createInputTd userRow columnIndex maybeDigit userInput =
             [ input
                 [ Guarded.Input.parseOnInput (guardedInputMsgToMsg userRow columnIndex) Guarded.Input.Parsers.decimalDigitParser
                 , value <| Guarded.Input.inputString userInput
-                , class stateClass
+                , classList
+                    [ ( "algorism-addition-input", True )
+                    , ( stateClass, True )
+                    ]
                 ]
                 []
             ]
