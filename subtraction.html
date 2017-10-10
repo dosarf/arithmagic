@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Subtraction</title>
+    <meta charset="utf-8"/>
+    <style type="text/css">
+.algorism-subtraction-input-correct {
+    background-color: #80ff80;
+}
+
+.algorism-subtraction-input-incorrect {
+  background-color: #ff9980;
+}
+
+.algorism-subtraction-input-unnecessary {
+  background-color: #ff9980;
+}
+
+.algorism-subtraction-input-missing {
+  background-color: #ffff99;
+}
+
+.algorism-subtraction-input-correct-empty {
+  background-color: 	#f0f0f5;
+}
+
+table.algorism-subtraction-table {
+  font-size: 2em;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  background-color:  azure;
+  border-collapse: collapse;
+}
+
+tr.algorism-subtraction-editable-tr {
+  border-top: 3px solid #000000;
+}
+
+td.algorism-subtraction-static-td {
+  border-left: 1px solid #66a3ff;
+  border-top: 1px solid #66a3ff;
+  text-align: center;
+}
+
+td.algorism-subtraction-editable-td {
+  border-left: 1px solid #66a3ff;
+  text-align: center;
+}
+
+td.algorism-subtraction-static-filler-td {
+  border-top: 1px solid #66a3ff;
+}
+
+td.algorism-subtraction-loan-td {
+  border-bottom: 1px solid #66a3ff;
+  font-size: 0.25em;
+  text-align: center;
+}
+
+td.algorism-subtraction-loan-filler-td {
+  border-left: 1px solid #66a3ff;
+  border-bottom: 1px solid #66a3ff;
+}
+
+input.algorism-subtraction-input {
+  font-size: 1.0em;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  width: 1em;
+  text-align: center;
+}
+    </style>
+    <script type="text/javascript" src="SubtractionApp.js"></script>
+    <script>
+      function init() {
+        var elmAppNode = document.getElementById('elm-app');
+        var app = Elm.SubtractionApp.embed(elmAppNode);
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <div id="elm-app"></div>
+  </body>
+</html>

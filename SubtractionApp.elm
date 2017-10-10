@@ -1,13 +1,13 @@
-module AdditionApp exposing (..)
+module SubtractionApp exposing (..)
 
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (classList, value)
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
-import Algorism.Addition.Types
-import Algorism.Addition.State
-import Algorism.Addition.View
+import Algorism.Subtraction.Types
+import Algorism.Subtraction.State
+import Algorism.Subtraction.View
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -21,7 +21,7 @@ type alias Operands =
 type alias Model =
     { inputModel : Algorism.Operands.Types.Model
     , maybeOperands : Maybe Operands
-    , addition : Algorism.Addition.Types.Model
+    , subtraction : Algorism.Subtraction.Types.Model
     }
 
 
@@ -49,13 +49,13 @@ initialModel : Model
 initialModel =
     { inputModel = Algorism.Operands.State.initWith operandParser operandParser
     , maybeOperands = Nothing
-    , addition = Algorism.Addition.State.init
+    , subtraction = Algorism.Subtraction.State.init
     }
 
 
 type Msg
     = InputChanged Algorism.Operands.Types.Msg
-    | AdditionChanged Algorism.Addition.Types.Msg
+    | SubtractionChanged Algorism.Subtraction.Types.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,39 +66,39 @@ update message model =
                 ( inputModel, subCmd ) =
                     Algorism.Operands.State.update operandsMsg model.inputModel
 
-                ( maybeOperands, newAdditionResult ) =
+                ( maybeOperands, newSubtractionResult ) =
                     case (Algorism.Operands.State.operandsOf inputModel) of
                         Err err ->
                             ( Nothing, Err err )
 
                         Ok ( firstOperand, secondOperand ) ->
                             ( Just (Operands firstOperand secondOperand)
-                            , Algorism.Addition.Types.initializeFor firstOperand secondOperand
+                            , Algorism.Subtraction.Types.initializeFor firstOperand secondOperand
                             )
 
-                newAddition =
-                    case newAdditionResult of
+                newSubtraction =
+                    case newSubtractionResult of
                         Err _ ->
-                            model.addition
+                            model.subtraction
 
-                        Ok addition ->
-                            Algorism.Addition.Types.solve addition
+                        Ok subtraction ->
+                            Algorism.Subtraction.Types.solve subtraction
             in
                 ( { model
                     | inputModel = inputModel
                     , maybeOperands = maybeOperands
-                    , addition = newAddition
+                    , subtraction = newSubtraction
                   }
                 , Cmd.map InputChanged subCmd
                 )
 
-        AdditionChanged additionMsg ->
+        SubtractionChanged subtractionMsg ->
             let
-                ( newAddition, subCmd ) =
-                    Algorism.Addition.State.update additionMsg model.addition
+                ( newSubtraction, subCmd ) =
+                    Algorism.Subtraction.State.update subtractionMsg model.subtraction
             in
-                ( { model | addition = newAddition }
-                , Cmd.map AdditionChanged subCmd
+                ( { model | subtraction = newSubtraction }
+                , Cmd.map SubtractionChanged subCmd
                 )
 
 
@@ -106,12 +106,12 @@ view : Model -> Html Msg
 view model =
     div []
         [ div []
-            [ text "Addition:"
+            [ text "Subtraction:"
             , Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
             ]
         , div
             []
-            [ Html.map AdditionChanged (Algorism.Addition.View.view model.addition)
+            [ Html.map SubtractionChanged (Algorism.Subtraction.View.view model.subtraction)
             ]
         ]
 

@@ -1,14 +1,18 @@
-module Algorism.Addition.Types exposing (..)
+module Algorism.Subtraction.Types exposing (..)
 
 import Guarded.Input
 
 
+-- TODO consider factoring out bits from Addition.Types.elm and this
+-- TODO consider giving a better name for type UserRow (in both Addition and here)
+
+
 type alias Column =
-    { carry : Maybe Int
+    { loan : Maybe Int
     , firstOperand : Maybe Int
     , secondOperand : Maybe Int
     , result : Maybe Int
-    , userCarry : Guarded.Input.Model Int
+    , userLoan : Guarded.Input.Model Int
     , userResult : Guarded.Input.Model Int
     }
 
@@ -30,7 +34,7 @@ type alias UserInputMsg =
 
 
 type UserRow
-    = Carry
+    = Loan
     | Result
 
 
@@ -39,16 +43,22 @@ guardedInputMsgToMsg userRow columnIndex =
     UserInputMsg userRow columnIndex >> UserInputChanged
 
 
+
+-- This is not exactly the same as Addition.initializeFor (column count is 1 less)
+
+
 initializeFor : Int -> Int -> Result String Model
 initializeFor firstOperand secondOperand =
     if firstOperand < 0 then
         Err <| "First operand is negative: " ++ (toString firstOperand)
     else if secondOperand < 0 then
         Err <| "Second operand is negative: " ++ (toString secondOperand)
+    else if firstOperand < secondOperand then
+        Err <| "First operand < second operand (" ++ (toString firstOperand) ++ "<" ++ (toString secondOperand) ++ ")"
     else
         let
             columnCount =
-                1 + (max (numberOfDigits firstOperand) (numberOfDigits secondOperand))
+                max (numberOfDigits firstOperand) (numberOfDigits secondOperand)
 
             firstDigits =
                 parseNDigits columnCount firstOperand
@@ -92,11 +102,11 @@ parseNDigits expectedLength integer =
 
 initializeColumnFor : Maybe Int -> Maybe Int -> Column
 initializeColumnFor firstOperand secondOperand =
-    { carry = Nothing
+    { loan = Nothing
     , firstOperand = firstOperand
     , secondOperand = secondOperand
     , result = Nothing
-    , userCarry = Guarded.Input.init
+    , userLoan = Guarded.Input.init
     , userResult = Guarded.Input.init
     }
 
@@ -112,7 +122,7 @@ numberOfDigits integer =
 
 
 type alias CalculationState =
-    { carry : Int
+    { loan : Int
     , columnsDone : List Column
     }
 
@@ -120,56 +130,37 @@ type alias CalculationState =
 calculateColumn : Column -> CalculationState -> CalculationState
 calculateColumn newColumn currentState =
     let
-        carryFromPrevious =
-            currentState.carry
-
-        firstOperand =
+        firstOperandDigit =
             Maybe.withDefault 0 newColumn.firstOperand
 
         secondOperand =
-            Maybe.withDefault 0 newColumn.secondOperand
+            (Maybe.withDefault 0 newColumn.secondOperand) + currentState.loan
 
-        sumOfCarryAndOperands =
-            carryFromPrevious + firstOperand + secondOperand
-
-        carryToNext =
-            sumOfCarryAndOperands // 10
+        ( loanFromNext, firstOperand ) =
+            if firstOperandDigit < secondOperand then
+                ( 1, firstOperandDigit + 10 )
+            else
+                ( 0, firstOperandDigit )
 
         result =
-            rem sumOfCarryAndOperands 10
+            firstOperand - secondOperand
 
-        -- if the operands above this result zero are both Nothing, then
-        -- a zero result would merely be a padding zero - in that case
-        -- emit a Nothing only
         maybeResult =
-            case newColumn.firstOperand of
-                Just n ->
-                    Just result
+            Just result
 
-                Nothing ->
-                    case newColumn.secondOperand of
-                        Just n ->
-                            Just result
-
-                        Nothing ->
-                            if result /= 0 then
-                                Just result
-                            else
-                                Nothing
-
-        maybeCarry =
-            if carryFromPrevious == 0 then
+        maybeLoan =
+            if currentState.loan == 0 then
                 Nothing
             else
-                Just carryFromPrevious
+                Just currentState.loan
 
         calculatedColumn =
             { newColumn
-                | carry = maybeCarry
+                | loan = maybeLoan
                 , result = maybeResult
             }
     in
-        { carry = carryToNext
+        { loan = loanFromNext
         , columnsDone = List.concat [ [ calculatedColumn ], currentState.columnsDone ]
         }
 
