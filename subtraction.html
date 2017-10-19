@@ -31,41 +31,37 @@ table.algorism-subtraction-table {
   border-collapse: collapse;
 }
 
-tr.algorism-subtraction-editable-tr {
+tr.algorism-subtraction-result-tr {
   border-top: 3px solid #000000;
 }
 
-td.algorism-subtraction-static-td {
-  border-left: 1px solid #66a3ff;
-  border-top: 1px solid #66a3ff;
+td.algorism-subtraction-loan-td, td.algorism-subtraction-result-td {
+  padding: 0em;
+  border: 1px solid #66a3ff;
+}
+
+input.algorism-subtraction-loan-input, input.algorism-subtraction-result-input {
+  font-size: .5em;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  width: 1em;
   text-align: center;
+  border: none;
 }
 
-td.algorism-subtraction-editable-td {
-  border-left: 1px solid #66a3ff;
-  text-align: center;
+td.algorism-subtraction-right-filler-td {
+  border-right: 1px solid #66a3ff;
 }
 
-td.algorism-subtraction-static-filler-td {
-  border-top: 1px solid #66a3ff;
-}
-
-td.algorism-subtraction-loan-td {
-  border-bottom: 1px solid #66a3ff;
-  font-size: 0.25em;
-  text-align: center;
-}
-
-td.algorism-subtraction-loan-filler-td {
-  border-left: 1px solid #66a3ff;
+td.algorism-subtraction-first-operand-bottom-filler-td {
   border-bottom: 1px solid #66a3ff;
 }
 
-input.algorism-subtraction-input {
+input.algorism-subtraction-result-input {
   font-size: 1.0em;
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   width: 1em;
   text-align: center;
+  border: none;
 }
     </style>
     <script type="text/javascript" src="SubtractionApp.js"></script>
