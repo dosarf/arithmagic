@@ -1,6 +1,6 @@
-module Algorism.Subtraction.State exposing (..)
+module Algorism.Subtraction.Austrian.State exposing (..)
 
-import Algorism.Subtraction.Types exposing (Column, Model, Msg(..), UserInputMsg, UserRow(..), guardedInputMsgToMsg, initializeFor, solve, initializeColumnFor)
+import Algorism.Subtraction.Austrian.Types exposing (Column, Model, Msg(..), UserInputMsg, UserRow(..), guardedInputMsgToMsg, initializeFor, solve, initializeColumnFor)
 import Guarded.Input
 
 
@@ -47,13 +47,13 @@ update message model =
 updateColumn : UserRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
 updateColumn userRow inputMsg column =
     case userRow of
-        Loan ->
+        Borrow ->
             let
-                ( userLoan, subCmd ) =
-                    Guarded.Input.update inputMsg column.userLoan
+                ( userBorrow, subCmd ) =
+                    Guarded.Input.update inputMsg column.userBorrow
             in
                 ( { column
-                    | userLoan = userLoan
+                    | userBorrow = userBorrow
                   }
                 , subCmd
                 )

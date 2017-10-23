@@ -1,13 +1,13 @@
-module SubtractionApp exposing (..)
+module AustrianSubtractionApp exposing (..)
 
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (classList, value)
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
-import Algorism.Subtraction.Types
-import Algorism.Subtraction.State
-import Algorism.Subtraction.View
+import Algorism.Subtraction.Austrian.Types
+import Algorism.Subtraction.Austrian.State
+import Algorism.Subtraction.Austrian.View
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -21,7 +21,7 @@ type alias Operands =
 type alias Model =
     { inputModel : Algorism.Operands.Types.Model
     , maybeOperands : Maybe Operands
-    , subtraction : Algorism.Subtraction.Types.Model
+    , subtraction : Algorism.Subtraction.Austrian.Types.Model
     }
 
 
@@ -49,13 +49,13 @@ initialModel : Model
 initialModel =
     { inputModel = Algorism.Operands.State.initWith operandParser operandParser
     , maybeOperands = Nothing
-    , subtraction = Algorism.Subtraction.State.init
+    , subtraction = Algorism.Subtraction.Austrian.State.init
     }
 
 
 type Msg
     = InputChanged Algorism.Operands.Types.Msg
-    | SubtractionChanged Algorism.Subtraction.Types.Msg
+    | SubtractionChanged Algorism.Subtraction.Austrian.Types.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,7 +73,7 @@ update message model =
 
                         Ok ( firstOperand, secondOperand ) ->
                             ( Just (Operands firstOperand secondOperand)
-                            , Algorism.Subtraction.Types.initializeFor firstOperand secondOperand
+                            , Algorism.Subtraction.Austrian.Types.initializeFor firstOperand secondOperand
                             )
 
                 newSubtraction =
@@ -82,7 +82,7 @@ update message model =
                             model.subtraction
 
                         Ok subtraction ->
-                            Algorism.Subtraction.Types.solve subtraction
+                            Algorism.Subtraction.Austrian.Types.solve subtraction
             in
                 ( { model
                     | inputModel = inputModel
@@ -95,7 +95,7 @@ update message model =
         SubtractionChanged subtractionMsg ->
             let
                 ( newSubtraction, subCmd ) =
-                    Algorism.Subtraction.State.update subtractionMsg model.subtraction
+                    Algorism.Subtraction.Austrian.State.update subtractionMsg model.subtraction
             in
                 ( { model | subtraction = newSubtraction }
                 , Cmd.map SubtractionChanged subCmd
@@ -111,7 +111,7 @@ view model =
             ]
         , div
             []
-            [ Html.map SubtractionChanged (Algorism.Subtraction.View.view model.subtraction)
+            [ Html.map SubtractionChanged (Algorism.Subtraction.Austrian.View.view model.subtraction)
             ]
         ]
 

@@ -1,10 +1,10 @@
-module Algorism.Subtraction.StateTests exposing (testSuite)
+module Algorism.Subtraction.Austrian.StateTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect
 import String
-import Algorism.Subtraction.State exposing (update, updateColumn)
-import Algorism.Subtraction.Types exposing (Column, UserRow(..), Model, Msg(..), UserInputMsg)
+import Algorism.Subtraction.Austrian.State exposing (update, updateColumn)
+import Algorism.Subtraction.Austrian.Types exposing (Column, UserRow(..), Model, Msg(..), UserInputMsg)
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -15,8 +15,8 @@ defaultInputIntModel =
 
 
 column : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> Column
-column loan firstOperand secondOperand result =
-    Column loan firstOperand secondOperand result defaultInputIntModel defaultInputIntModel
+column borrow firstOperand secondOperand result =
+    Column borrow firstOperand secondOperand result defaultInputIntModel defaultInputIntModel
 
 
 someColumn : Column
@@ -36,7 +36,7 @@ inputIntModel5 =
 
 someMsg : Msg
 someMsg =
-    UserInputChanged (UserInputMsg Loan 1 inputMsg5)
+    UserInputChanged (UserInputMsg Borrow 1 inputMsg5)
 
 
 someModel : Model
@@ -51,11 +51,11 @@ testSuite : Test
 testSuite =
     describe "Algorism.Addition.State tests"
         [ describe "updateColumn tests"
-            [ test "updating loan (top) row with user input message" <|
+            [ test "updating borrow (top) row with user input message" <|
                 \() ->
-                    { someColumn | userLoan = inputIntModel5 }
+                    { someColumn | userBorrow = inputIntModel5 }
                         |> Expect.equal
-                            (updateColumn Loan inputMsg5 someColumn |> Tuple.first)
+                            (updateColumn Borrow inputMsg5 someColumn |> Tuple.first)
             , test "updating result (bottom) row with user input message" <|
                 \() ->
                     { someColumn | userResult = inputIntModel5 }
@@ -63,11 +63,11 @@ testSuite =
                             (updateColumn Result inputMsg5 someColumn |> Tuple.first)
             ]
         , describe "update tests"
-            [ test "updating 1st colum, loan (top) row with user input message" <|
+            [ test "updating 1st colum, borrow (top) row with user input message" <|
                 \() ->
                     Model
                         [ someColumn
-                        , { someColumn | userLoan = inputIntModel5 }
+                        , { someColumn | userBorrow = inputIntModel5 }
                         ]
                         |> Expect.equal (update someMsg someModel |> Tuple.first)
             ]

@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Subtraction</title>
+    <title>Subtraction (Austrian method)</title>
     <meta charset="utf-8"/>
     <style type="text/css">
-.algorism-subtraction-input-correct {
+.algorism-subtr-austr-input-correct {
     background-color: #80ff80;
 }
 
-.algorism-subtraction-input-incorrect {
+.algorism-subtr-austr-input-incorrect {
   background-color: #ff9980;
 }
 
-.algorism-subtraction-input-unnecessary {
+.algorism-subtr-austr-input-unnecessary {
   background-color: #ff9980;
 }
 
-.algorism-subtraction-input-missing {
+.algorism-subtr-austr-input-missing {
   background-color: #ffff99;
 }
 
-.algorism-subtraction-input-correct-empty {
+.algorism-subtr-austr-input-correct-empty {
   background-color: 	#f0f0f5;
 }
 
-table.algorism-subtraction-table {
+table.algorism-subtr-austr-table {
   font-size: 2em;
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   background-color:  azure;
   border-collapse: collapse;
 }
 
-tr.algorism-subtraction-result-tr {
+tr.algorism-subtr-austr-result-tr {
   border-top: 3px solid #000000;
 }
 
-td.algorism-subtraction-loan-td, td.algorism-subtraction-result-td {
+td.algorism-subtr-austr-borrow-td, td.algorism-subtr-austr-result-td {
   padding: 0em;
   border: 1px solid #66a3ff;
 }
 
-input.algorism-subtraction-loan-input, input.algorism-subtraction-result-input {
+input.algorism-subtr-austr-borrow-input, input.algorism-subtr-austr-result-input {
   font-size: .5em;
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   width: 1em;
@@ -48,15 +48,15 @@ input.algorism-subtraction-loan-input, input.algorism-subtraction-result-input {
   border: none;
 }
 
-td.algorism-subtraction-right-filler-td {
+td.algorism-subtr-austr-right-filler-td {
   border-right: 1px solid #66a3ff;
 }
 
-td.algorism-subtraction-first-operand-bottom-filler-td {
+td.algorism-subtr-austr-first-operand-bottom-filler-td {
   border-bottom: 1px solid #66a3ff;
 }
 
-input.algorism-subtraction-result-input {
+input.algorism-subtr-austr-result-input {
   font-size: 1.0em;
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   width: 1em;
@@ -64,11 +64,11 @@ input.algorism-subtraction-result-input {
   border: none;
 }
     </style>
-    <script type="text/javascript" src="SubtractionApp.js"></script>
+    <script type="text/javascript" src="AustrianSubtractionApp.js"></script>
     <script>
       function init() {
         var elmAppNode = document.getElementById('elm-app');
-        var app = Elm.SubtractionApp.embed(elmAppNode);
+        var app = Elm.AustrianSubtractionApp.embed(elmAppNode);
       }
     </script>
   </head>
