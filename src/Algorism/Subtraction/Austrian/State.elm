@@ -32,8 +32,11 @@ update message model =
                 updatedColumns =
                     List.map Tuple.first updatedColumnMsgTuples
 
+                maybeSubCmd =
+                    List.map Tuple.second updatedColumnMsgTuples |> List.filter (\cmd -> cmd /= Cmd.none) |> List.head
+
                 subCmd =
-                    List.map Tuple.second updatedColumnMsgTuples |> List.filter (\cmd -> cmd /= Cmd.none) |> List.head |> Maybe.withDefault Cmd.none
+                    Maybe.withDefault Cmd.none maybeSubCmd
             in
                 ( { model | columns = updatedColumns }
                 , Cmd.map (guardedInputMsgToMsg userRow columnIndex) subCmd

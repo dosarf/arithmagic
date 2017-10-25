@@ -8,6 +8,8 @@ import Algorism.Addition.TypesTests
 import Algorism.Addition.StateTests
 import Algorism.Subtraction.Austrian.TypesTests
 import Algorism.Subtraction.Austrian.StateTests
+import Algorism.Subtraction.Standard.TypesTests
+import Algorism.Subtraction.Standard.StateTests
 
 
 main : TestProgram
@@ -19,6 +21,8 @@ main =
             , Algorism.Addition.StateTests.testSuite
             , Algorism.Subtraction.Austrian.TypesTests.testSuite
             , Algorism.Subtraction.Austrian.StateTests.testSuite
+            , Algorism.Subtraction.Standard.TypesTests.testSuite
+            , Algorism.Subtraction.Standard.StateTests.testSuite
             ]
 
 

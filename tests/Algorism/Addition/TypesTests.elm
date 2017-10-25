@@ -1,4 +1,4 @@
-module Algorism.Addition.TypesTests exposing (..)
+module Algorism.Addition.TypesTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect

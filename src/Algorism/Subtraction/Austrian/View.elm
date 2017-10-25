@@ -249,20 +249,16 @@ resultTds maybeResult userResult columnIndex columnPosition =
 
 resultTd : String -> Int -> Maybe Int -> Guarded.Input.Model Int -> Html Msg
 resultTd correctnessClass columnIndex maybeResult userResult =
-    let
-        correctnessClass =
-            userInputCorrectnessClass maybeResult userResult
-    in
-        td
-            [ classList [ ( "algorism-subtr-austr-result-td", True ), ( correctnessClass, True ) ]
-            ]
-            [ input
-                [ Guarded.Input.parseOnInput (guardedInputMsgToMsg Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
-                , value <| Guarded.Input.inputString userResult
-                , classList
-                    [ ( "algorism-subtr-austr-result-input", True )
-                    , ( correctnessClass, True )
-                    ]
+    td
+        [ classList [ ( "algorism-subtr-austr-result-td", True ), ( correctnessClass, True ) ]
+        ]
+        [ input
+            [ Guarded.Input.parseOnInput (guardedInputMsgToMsg Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
+            , value <| Guarded.Input.inputString userResult
+            , classList
+                [ ( "algorism-subtr-austr-result-input", True )
+                , ( correctnessClass, True )
                 ]
-                []
             ]
+            []
+        ]

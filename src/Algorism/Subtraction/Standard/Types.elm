@@ -1,18 +1,20 @@
-module Algorism.Subtraction.Austrian.Types exposing (..)
+module Algorism.Subtraction.Standard.Types exposing (..)
 
 import Guarded.Input
 
 
--- TODO consider factoring out bits from Addition.Types.elm and this
--- TODO consider giving a better name for type UserRow (in both Addition and here)
--- This implements the "Austrian method"
--- described in http://web.sonoma.edu/users/w/wilsonst/courses/math_300/groupwork/altsub/aust.html
+-- This implements the "Standard method"
+-- described in http://web.sonoma.edu/users/w/wilsonst/courses/math_300/groupwork/altsub/standard.html
 
 
 type alias Column =
-    { borrow : Maybe Int
-    , userBorrow : Guarded.Input.Model Int
+    { regrouppedFirstOperand : Maybe Int
+    , userRegrouppedFirstOperand : Guarded.Input.Model Int
+    , borrowFromRegrouppedFirstOperand : Bool
+    , userBorrowFromRegrouppedFirstOperand : Bool
     , firstOperand : Maybe Int
+    , borrowFromFirstOperand : Bool
+    , userBorrowFromFirstOperand : Bool
     , secondOperand : Maybe Int
     , result : Maybe Int
     , userResult : Guarded.Input.Model Int
@@ -25,28 +27,49 @@ type alias Model =
 
 
 type Msg
-    = UserInputChanged UserInputMsg
+    = UserIntInputChanged UserIntInputMsg
+    | UserBorrowToggled UserBoolInputMsg
 
 
-type alias UserInputMsg =
-    { userRow : UserRow
+type alias UserIntInputMsg =
+    { userRow : IntUserRow
     , columnIndex : Int
     , inputMsg : Guarded.Input.Msg Int
     }
 
 
-type UserRow
-    = Borrow
+type IntUserRow
+    = RegrouppedFirstOperand
     | Result
 
 
-guardedInputMsgToMsg : UserRow -> Int -> Guarded.Input.Msg Int -> Msg
+type alias UserBoolInputMsg =
+    { userRow : BoolUserRow
+    , columnIndex : Int
+    }
+
+
+type BoolUserRow
+    = BorrowFromRegrouppedFirstOperand
+    | BorrowFromFirstOperand
+
+
+guardedInputMsgToMsg : IntUserRow -> Int -> Guarded.Input.Msg Int -> Msg
 guardedInputMsgToMsg userRow columnIndex =
-    UserInputMsg userRow columnIndex >> UserInputChanged
+    UserIntInputMsg userRow columnIndex >> UserIntInputChanged
 
 
 
--- TODO This is not exactly the same as Addition.initializeFor (column count is 1 less)
+-- TODO name is probably incorrect - check Html.Events.onDoubleClick
+
+
+boolInputMsgToMsg : BoolUserRow -> Int -> Msg
+boolInputMsgToMsg userRow columnIndex =
+    UserBorrowToggled <| UserBoolInputMsg userRow columnIndex
+
+
+
+-- TODO This is exactly the same as Subtraction.Austrian
 
 
 initializeFor : Int -> Int -> Result String Model
@@ -108,9 +131,13 @@ parseNDigits expectedLength integer =
 
 initializeColumnFor : Maybe Int -> Maybe Int -> Column
 initializeColumnFor firstOperand secondOperand =
-    { borrow = Nothing
-    , userBorrow = Guarded.Input.init
+    { regrouppedFirstOperand = Nothing
+    , userRegrouppedFirstOperand = Guarded.Input.init
+    , borrowFromRegrouppedFirstOperand = False
+    , userBorrowFromRegrouppedFirstOperand = False
     , firstOperand = firstOperand
+    , borrowFromFirstOperand = False
+    , userBorrowFromFirstOperand = False
     , secondOperand = secondOperand
     , result = Nothing
     , userResult = Guarded.Input.init
@@ -132,41 +159,71 @@ numberOfDigits integer =
 
 
 type alias CalculationState =
-    { borrow : Int
+    { borrow : Bool
     , columnsDone : List Column
     }
+
+
+type FirstRelativeToSecondOperand
+    = FirstEqualsSecond
+    | FirstGreaterThanSecond
+    | FirstLessThanSecond
+
+
+firstRelativeToSecondOperand : Int -> Int -> FirstRelativeToSecondOperand
+firstRelativeToSecondOperand first second =
+    let
+        difference =
+            first - second
+    in
+        if difference == 0 then
+            FirstEqualsSecond
+        else if difference < 0 then
+            FirstLessThanSecond
+        else
+            FirstGreaterThanSecond
 
 
 calculateColumn : Column -> CalculationState -> CalculationState
 calculateColumn newColumn currentState =
     let
-        firstOperandDigit =
+        firstOperand =
             Maybe.withDefault 0 newColumn.firstOperand
 
         secondOperand =
-            (Maybe.withDefault 0 newColumn.secondOperand) + currentState.borrow
+            Maybe.withDefault 0 newColumn.secondOperand
 
-        ( borrowFromNext, firstOperand ) =
-            if firstOperandDigit < secondOperand then
-                ( 1, firstOperandDigit + 10 )
-            else
-                ( 0, firstOperandDigit )
+        firstRelativeToSecond =
+            firstRelativeToSecondOperand firstOperand secondOperand
+
+        ( regrouppedFirstOperand, borrowFromRegrouppedFirstOperand, firstOperandToUse, borrowFromFirstOperand, borrowFromNext ) =
+            case ( currentState.borrow, firstOperand, firstRelativeToSecond ) of
+                ( False, fOp, FirstLessThanSecond ) ->
+                    ( Just <| firstOperand + 10, False, firstOperand + 10, False, True )
+
+                ( False, fOp, _ ) ->
+                    ( Nothing, False, firstOperand, False, False )
+
+                ( True, 0, _ ) ->
+                    ( Just 10, True, 9, False, True )
+
+                ( True, _, FirstGreaterThanSecond ) ->
+                    ( Nothing, False, firstOperand - 1, True, False )
+
+                ( True, fOp, _ ) ->
+                    ( Just <| firstOperand + 9, False, firstOperand + 9, True, True )
 
         result =
-            firstOperand - secondOperand
+            firstOperandToUse - secondOperand
 
         maybeResult =
             Just result
 
-        maybeBorrow =
-            if currentState.borrow == 0 then
-                Nothing
-            else
-                Just currentState.borrow
-
         calculatedColumn =
             { newColumn
-                | borrow = maybeBorrow
+                | regrouppedFirstOperand = regrouppedFirstOperand
+                , borrowFromRegrouppedFirstOperand = borrowFromRegrouppedFirstOperand
+                , borrowFromFirstOperand = borrowFromFirstOperand
                 , result = maybeResult
             }
     in
@@ -179,7 +236,7 @@ solve : Model -> Model
 solve model =
     let
         seedColumnState =
-            CalculationState 0 []
+            CalculationState False []
 
         finalColumnsState =
             List.foldr calculateColumn seedColumnState model.columns

@@ -16,7 +16,7 @@ defaultInputIntModel =
 
 column : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> Column
 column borrow firstOperand secondOperand result =
-    Column borrow firstOperand secondOperand result defaultInputIntModel defaultInputIntModel
+    Column borrow defaultInputIntModel firstOperand secondOperand result defaultInputIntModel
 
 
 someColumn : Column
@@ -49,7 +49,7 @@ someModel =
 
 testSuite : Test
 testSuite =
-    describe "Algorism.Addition.State tests"
+    describe "Algorism.Subtraction.Austrian.State tests"
         [ describe "updateColumn tests"
             [ test "updating borrow (top) row with user input message" <|
                 \() ->

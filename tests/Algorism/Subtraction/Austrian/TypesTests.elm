@@ -1,4 +1,4 @@
-module Algorism.Subtraction.Austrian.TypesTests exposing (..)
+module Algorism.Subtraction.Austrian.TypesTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect
@@ -15,12 +15,12 @@ inputIntModel =
 
 column : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> Column
 column borrow firstOperand secondOperand result =
-    Column borrow firstOperand secondOperand result inputIntModel inputIntModel
+    Column borrow inputIntModel firstOperand secondOperand result inputIntModel
 
 
 testSuite : Test
 testSuite =
-    describe "Algorithm.Subtraction.Types tests"
+    describe "Algorithm.Subtraction.Austrian.Types tests"
         [ describe "calculateColumn (internal) function tests"
             [ fuzz (intRange 0 4) "no borrows of any kind" <|
                 \x ->
