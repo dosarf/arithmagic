@@ -2,7 +2,7 @@ module Algorism.Operands.State exposing (..)
 
 import Guarded.Input
 import Guarded.Input.Parsers
-import Algorism.Operands.Types exposing (Model, Msg(..))
+import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
 
 
 init : Model
@@ -11,12 +11,18 @@ init =
     , secondOperand = Guarded.Input.init
     , firstParser = Guarded.Input.Parsers.nonNegativeIntParser
     , secondParser = Guarded.Input.Parsers.nonNegativeIntParser
+    , operator = Addition
     }
 
 
 initWith : (String -> Guarded.Input.Msg Int) -> (String -> Guarded.Input.Msg Int) -> Model
 initWith firstParser secondParser =
-    Model Guarded.Input.init Guarded.Input.init firstParser secondParser
+    Model Guarded.Input.init Guarded.Input.init firstParser secondParser Addition
+
+
+withOperator : Operator -> Model -> Model
+withOperator operator model =
+    { model | operator = operator }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

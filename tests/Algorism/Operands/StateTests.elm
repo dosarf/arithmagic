@@ -2,7 +2,7 @@ module Algorism.Operands.StateTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect
-import Algorism.Operands.Types exposing (Model, Msg(..))
+import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
 import Algorism.Operands.State exposing (update, operandsOf)
 import Guarded.Input
 import Guarded.Input.Parsers
@@ -45,7 +45,7 @@ workInProgressMsg =
 
 someModel : Model
 someModel =
-    Model validOperand12 validOperand34 Guarded.Input.Parsers.intParser Guarded.Input.Parsers.intParser
+    Model validOperand12 validOperand34 Guarded.Input.Parsers.intParser Guarded.Input.Parsers.intParser Addition
 
 
 testSuite : Test

@@ -8,9 +8,15 @@ type alias Model =
     , secondOperand : Guarded.Input.Model Int
     , firstParser : String -> Guarded.Input.Msg Int
     , secondParser : String -> Guarded.Input.Msg Int
+    , operator : Operator
     }
 
 
 type Msg
     = FirstOperandChanged (Guarded.Input.Msg Int)
     | SecondOperandChanged (Guarded.Input.Msg Int)
+
+
+type Operator
+    = Addition
+    | Subtraction

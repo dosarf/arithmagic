@@ -1,6 +1,6 @@
 module Algorism.Operands.View exposing (..)
 
-import Algorism.Operands.Types exposing (Model, Msg(..))
+import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (value)
 import Guarded.Input
@@ -15,10 +15,20 @@ view model =
             , value <| Guarded.Input.inputString model.firstOperand
             ]
             []
-        , text "+"
+        , text <| operatorView model.operator
         , input
             [ Guarded.Input.parseOnInput SecondOperandChanged model.secondParser
             , value <| Guarded.Input.inputString model.secondOperand
             ]
             []
         ]
+
+
+operatorView : Operator -> String
+operatorView operator =
+    case operator of
+        Addition ->
+            "+"
+
+        Subtraction ->
+            "-"

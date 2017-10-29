@@ -47,7 +47,7 @@ operandParser =
 
 initialModel : Model
 initialModel =
-    { inputModel = Algorism.Operands.State.initWith operandParser operandParser
+    { inputModel = Algorism.Operands.State.initWith operandParser operandParser |> Algorism.Operands.State.withOperator Algorism.Operands.Types.Subtraction
     , maybeOperands = Nothing
     , subtraction = Algorism.Subtraction.Austrian.State.init
     }
