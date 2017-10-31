@@ -1,6 +1,7 @@
 module Algorism.Operands.View exposing (..)
 
-import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
+import Algorism.Common.Operator exposing (Operator(..))
+import Algorism.Operands.Types exposing (Model, Msg(..))
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (value)
 import Guarded.Input

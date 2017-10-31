@@ -2,6 +2,7 @@ module StandardSubtractionApp exposing (..)
 
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (classList, value)
+import Algorism.Common.Operator
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
@@ -47,7 +48,7 @@ operandParser =
 
 initialModel : Model
 initialModel =
-    { inputModel = Algorism.Operands.State.initWith operandParser operandParser |> Algorism.Operands.State.withOperator Algorism.Operands.Types.Subtraction
+    { inputModel = Algorism.Operands.State.initWith operandParser operandParser |> Algorism.Operands.State.withOperator Algorism.Common.Operator.Subtraction
     , maybeOperands = Nothing
     , subtraction = Algorism.Subtraction.Standard.State.init
     }

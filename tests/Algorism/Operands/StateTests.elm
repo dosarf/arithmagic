@@ -2,7 +2,8 @@ module Algorism.Operands.StateTests exposing (testSuite)
 
 import Test exposing (..)
 import Expect
-import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
+import Algorism.Common.Operator exposing (Operator(..))
+import Algorism.Operands.Types exposing (Model, Msg(..))
 import Algorism.Operands.State exposing (update, operandsOf)
 import Guarded.Input
 import Guarded.Input.Parsers

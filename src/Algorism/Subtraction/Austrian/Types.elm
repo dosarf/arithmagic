@@ -1,6 +1,8 @@
 module Algorism.Subtraction.Austrian.Types exposing (..)
 
 import Guarded.Input
+import Algorism.Common.Operator exposing (Operator(..))
+import Algorism.Common.Util exposing (initializeForModel)
 
 
 -- TODO consider factoring out bits from Addition.Types.elm and this
@@ -40,70 +42,18 @@ type UserRow
     | Result
 
 
+
+-- TODO rename and factor out (?)
+
+
 guardedInputMsgToMsg : UserRow -> Int -> Guarded.Input.Msg Int -> Msg
 guardedInputMsgToMsg userRow columnIndex =
     UserInputMsg userRow columnIndex >> UserInputChanged
 
 
-
--- TODO This is not exactly the same as Addition.initializeFor (column count is 1 less)
-
-
 initializeFor : Int -> Int -> Result String Model
-initializeFor firstOperand secondOperand =
-    if firstOperand < 0 then
-        Err <| "First operand is negative: " ++ (toString firstOperand)
-    else if secondOperand < 0 then
-        Err <| "Second operand is negative: " ++ (toString secondOperand)
-    else if firstOperand < secondOperand then
-        Err <| "First operand < second operand (" ++ (toString firstOperand) ++ "<" ++ (toString secondOperand) ++ ")"
-    else
-        let
-            columnCount =
-                max (numberOfDigits firstOperand) (numberOfDigits secondOperand)
-
-            firstDigits =
-                parseNDigits columnCount firstOperand
-
-            secondDigits =
-                parseNDigits columnCount secondOperand
-
-            columns =
-                List.map2 (\x y -> initializeColumnFor x y) firstDigits secondDigits
-        in
-            Ok (Model columns)
-
-
-
--- TODO probably identical to Algorism.Addition.Types.parseNDigits
-
-
-parseNDigits : Int -> Int -> List (Maybe Int)
-parseNDigits expectedLength integer =
-    if expectedLength <= 0 then
-        []
-    else if integer < 0 then
-        []
-    else if integer == 0 then
-        if expectedLength == 1 then
-            [ Just 0 ]
-        else
-            List.concat [ List.repeat (expectedLength - 1) Nothing, [ Just 0 ] ]
-    else
-        let
-            rightMostDigit =
-                rem integer 10
-
-            integerWithDigitsOnLeft =
-                integer // 10
-
-            digitsOnLeft =
-                if integerWithDigitsOnLeft > 0 then
-                    parseNDigits (expectedLength - 1) integerWithDigitsOnLeft
-                else
-                    List.repeat (expectedLength - 1) Nothing
-        in
-            List.concat [ digitsOnLeft, [ Just rightMostDigit ] ]
+initializeFor =
+    initializeForModel Subtraction Model initializeColumnFor
 
 
 initializeColumnFor : Maybe Int -> Maybe Int -> Column
@@ -115,20 +65,6 @@ initializeColumnFor firstOperand secondOperand =
     , result = Nothing
     , userResult = Guarded.Input.init
     }
-
-
-
--- TODO probably identical to Algorism.Addition.Types.numberOfDigits
-
-
-numberOfDigits : Int -> Int
-numberOfDigits integer =
-    if integer < 0 then
-        numberOfDigits -integer
-    else if integer < 10 then
-        1
-    else
-        1 + (numberOfDigits <| integer // 10)
 
 
 type alias CalculationState =
@@ -173,6 +109,11 @@ calculateColumn newColumn currentState =
         { borrow = borrowFromNext
         , columnsDone = List.concat [ [ calculatedColumn ], currentState.columnsDone ]
         }
+
+
+
+-- TODO this is verbatim the same for Addition, Subtraction - can it be neatly factored out?
+-- (verbatim the same still does not mean that the same 'Model' means the same type)
 
 
 solve : Model -> Model

@@ -2,7 +2,8 @@ module Algorism.Operands.State exposing (..)
 
 import Guarded.Input
 import Guarded.Input.Parsers
-import Algorism.Operands.Types exposing (Model, Msg(..), Operator(..))
+import Algorism.Common.Operator exposing (Operator(..))
+import Algorism.Operands.Types exposing (Model, Msg(..))
 
 
 init : Model

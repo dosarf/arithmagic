@@ -1,6 +1,7 @@
 module Algorism.Operands.Types exposing (..)
 
 import Guarded.Input
+import Algorism.Common.Operator exposing (Operator)
 
 
 type alias Model =
@@ -15,8 +16,3 @@ type alias Model =
 type Msg
     = FirstOperandChanged (Guarded.Input.Msg Int)
     | SecondOperandChanged (Guarded.Input.Msg Int)
-
-
-type Operator
-    = Addition
-    | Subtraction
