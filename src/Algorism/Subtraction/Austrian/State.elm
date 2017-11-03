@@ -1,29 +1,25 @@
 module Algorism.Subtraction.Austrian.State exposing (..)
 
-import Algorism.Subtraction.Austrian.Types exposing (Column, Model, Msg(..), UserInputMsg, UserRow(..), guardedInputMsgToMsg, initializeFor, solve, initializeColumnFor)
+import Algorism.Subtraction.Austrian.Types exposing (Column, Model, Msg(..), DigitInfo, EditableRow(..), guardedInputMsgToMsgFunc, initializeFor, solve, initializeColumnFor)
 import Guarded.Input
 
 
 init : Model
 init =
-    { columns = [ initializeColumnFor Nothing Nothing ]
+    { columns = []
     }
-
-
-
--- TODO this is a verbatim copy of Algorism.Addition.update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        UserInputChanged { userRow, columnIndex, inputMsg } ->
+        DigitEdited { editableRow, columnIndex, inputMsg } ->
             let
                 updatedColumnMsgTuples =
                     List.indexedMap
                         (\index column ->
                             if columnIndex == index then
-                                updateColumn userRow inputMsg column
+                                updateColumn editableRow inputMsg column
                             else
                                 ( column, Cmd.none )
                         )
@@ -39,17 +35,13 @@ update message model =
                     Maybe.withDefault Cmd.none maybeSubCmd
             in
                 ( { model | columns = updatedColumns }
-                , Cmd.map (guardedInputMsgToMsg userRow columnIndex) subCmd
+                , Cmd.map (guardedInputMsgToMsgFunc editableRow columnIndex) subCmd
                 )
 
 
-
--- TODO this is almost a verbatim copy of Algorism.Addition.updateColumn
-
-
-updateColumn : UserRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
-updateColumn userRow inputMsg column =
-    case userRow of
+updateColumn : EditableRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
+updateColumn editableRow inputMsg column =
+    case editableRow of
         Borrow ->
             let
                 ( userBorrow, subCmd ) =

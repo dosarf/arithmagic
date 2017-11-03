@@ -1,6 +1,6 @@
 module Algorism.Subtraction.Standard.View exposing (..)
 
-import Algorism.Subtraction.Standard.Types exposing (Column, Model, Msg, guardedInputMsgToMsg, boolInputMsgToMsg, IntUserRow(..), BoolUserRow(..))
+import Algorism.Subtraction.Standard.Types exposing (Column, Model, Msg, guardedInputMsgToMsgFunc, boolInputMsgToMsgFunc, EditableIntRow(..), EditableBoolRow(..))
 import Html exposing (Html, button, div, input, span, table, text, tr, td)
 import Html.Attributes exposing (class, classList, value)
 import Html.Events exposing (onDoubleClick)
@@ -72,7 +72,7 @@ regrouppedFirstOperandTd columnIndex column =
                 td
                     [ class "algorism-subtr-std-rg1st-op-td" ]
                     [ input
-                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsg RegrouppedFirstOperand columnIndex) undevigintiParser
+                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc RegrouppedFirstOperand columnIndex) undevigintiParser
                         , value ""
                         , classList
                             [ ( "algorism-subtr-std-rg1st-op-input", True )
@@ -88,10 +88,10 @@ regrouppedFirstOperandTd columnIndex column =
                         [ ( "algorism-subtr-std-rg1st-op-td", True )
                         , ( borrowCorrectnessClass, True )
                         ]
-                    , onDoubleClick <| boolInputMsgToMsg BorrowFromRegrouppedFirstOperand columnIndex
+                    , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromRegrouppedFirstOperand columnIndex
                     ]
                     [ input
-                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsg RegrouppedFirstOperand columnIndex) undevigintiParser
+                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc RegrouppedFirstOperand columnIndex) undevigintiParser
                         , value userRegrouppedFirstOperand
                         , classList
                             [ ( "algorism-subtr-std-rg1st-op-input", True )
@@ -107,10 +107,10 @@ regrouppedFirstOperandTd columnIndex column =
                         [ ( "algorism-subtr-std-rg1st-op-td", True )
                         , ( borrowCorrectnessClass, True )
                         ]
-                    , onDoubleClick <| boolInputMsgToMsg BorrowFromRegrouppedFirstOperand columnIndex
+                    , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromRegrouppedFirstOperand columnIndex
                     ]
                     [ input
-                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsg RegrouppedFirstOperand columnIndex) undevigintiParser
+                        [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc RegrouppedFirstOperand columnIndex) undevigintiParser
                         , value userRegrouppedFirstOperand
                         , classList
                             [ ( "algorism-subtr-std-rg1st-op-input", True )
@@ -151,7 +151,7 @@ firstOperandTd columnIndex column =
                         [ ( "algorism-subtr-std-1st-op-td", True )
                         , ( borrowCorrectnessClass, True )
                         ]
-                    , onDoubleClick <| boolInputMsgToMsg BorrowFromFirstOperand columnIndex
+                    , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromFirstOperand columnIndex
                     ]
                     [ text <| toString n ]
 
@@ -162,7 +162,7 @@ firstOperandTd columnIndex column =
                         , ( "algorism-subtr-std-borrowed-from-outer", True )
                         , ( borrowCorrectnessClass, True )
                         ]
-                    , onDoubleClick <| boolInputMsgToMsg BorrowFromFirstOperand columnIndex
+                    , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromFirstOperand columnIndex
                     ]
                     [ span
                         [ class "algorism-subtr-std-borrowed-from-inner" ]
@@ -220,7 +220,7 @@ resultTd columnIndex maybeResult userResult =
             [ classList [ ( "algorism-subtr-std-result-td", True ), ( correctnessClass, True ) ]
             ]
             [ input
-                [ Guarded.Input.parseOnInput (guardedInputMsgToMsg Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
+                [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
                 , value <| Guarded.Input.inputString userResult
                 , classList
                     [ ( "algorism-subtr-std-result-input", True )

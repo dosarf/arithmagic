@@ -4,29 +4,22 @@ import Algorism.Subtraction.Standard.Types exposing (..)
 import Guarded.Input
 
 
--- TODO the columns list could be empty (also for Addition, and Subtraction.Austrian)
-
-
 init : Model
 init =
-    { columns = [ initializeColumnFor Nothing Nothing ]
+    { columns = []
     }
-
-
-
--- TODO (not quite) similar to Algorism.Subtraction.update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        UserIntInputChanged { userRow, columnIndex, inputMsg } ->
+        DigitEdited { editableRow, columnIndex, inputMsg } ->
             let
                 updatedColumnMsgTuples =
                     List.indexedMap
                         (\index column ->
                             if columnIndex == index then
-                                updateIntColumn userRow inputMsg column
+                                updateIntColumn editableRow inputMsg column
                             else
                                 ( column, Cmd.none )
                         )
@@ -42,16 +35,16 @@ update message model =
                     Maybe.withDefault Cmd.none maybeSubCmd
             in
                 ( { model | columns = updatedColumns }
-                , Cmd.map (guardedInputMsgToMsg userRow columnIndex) subCmd
+                , Cmd.map (guardedInputMsgToMsgFunc editableRow columnIndex) subCmd
                 )
 
-        UserBorrowToggled { userRow, columnIndex } ->
+        BoolToggled { editableRow, columnIndex } ->
             let
                 updatedColumns =
                     List.indexedMap
                         (\index column ->
                             if columnIndex == index then
-                                updateBoolColumn userRow column
+                                updateBoolColumn editableRow column
                             else
                                 column
                         )
@@ -62,9 +55,9 @@ update message model =
                 )
 
 
-updateIntColumn : IntUserRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
-updateIntColumn userRow inputMsg column =
-    case userRow of
+updateIntColumn : EditableIntRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
+updateIntColumn editableRow inputMsg column =
+    case editableRow of
         RegrouppedFirstOperand ->
             let
                 ( userRegrouppedFirstOperand, subCmd ) =
@@ -88,9 +81,9 @@ updateIntColumn userRow inputMsg column =
                 )
 
 
-updateBoolColumn : BoolUserRow -> Column -> Column
-updateBoolColumn userRow column =
-    case userRow of
+updateBoolColumn : EditableBoolRow -> Column -> Column
+updateBoolColumn editableRow column =
+    case editableRow of
         BorrowFromRegrouppedFirstOperand ->
             { column | userBorrowFromRegrouppedFirstOperand = not column.userBorrowFromRegrouppedFirstOperand }
 

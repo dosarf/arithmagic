@@ -1,25 +1,25 @@
 module Algorism.Addition.State exposing (..)
 
-import Algorism.Addition.Types exposing (Column, Model, Msg(..), UserInputMsg, UserRow(..), guardedInputMsgToMsg, initializeFor, solve, initializeColumnFor)
+import Algorism.Addition.Types exposing (Column, Model, Msg(..), DigitInfo, EditableRow(..), guardedInputMsgToMsgFunc, initializeFor, solve, initializeColumnFor)
 import Guarded.Input
 
 
 init : Model
 init =
-    { columns = [ initializeColumnFor Nothing Nothing ]
+    { columns = []
     }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        UserInputChanged { userRow, columnIndex, inputMsg } ->
+        DigitEdited { editableRow, columnIndex, inputMsg } ->
             let
                 updatedColumnMsgTuples =
                     List.indexedMap
                         (\index column ->
                             if columnIndex == index then
-                                updateColumn userRow inputMsg column
+                                updateColumn editableRow inputMsg column
                             else
                                 ( column, Cmd.none )
                         )
@@ -28,17 +28,20 @@ update message model =
                 updatedColumns =
                     List.map Tuple.first updatedColumnMsgTuples
 
+                maybeSubCmd =
+                    List.map Tuple.second updatedColumnMsgTuples |> List.filter (\cmd -> cmd /= Cmd.none) |> List.head
+
                 subCmd =
-                    List.map Tuple.second updatedColumnMsgTuples |> List.filter (\cmd -> cmd /= Cmd.none) |> List.head |> Maybe.withDefault Cmd.none
+                    Maybe.withDefault Cmd.none maybeSubCmd
             in
                 ( { model | columns = updatedColumns }
-                , Cmd.map (guardedInputMsgToMsg userRow columnIndex) subCmd
+                , Cmd.map (guardedInputMsgToMsgFunc editableRow columnIndex) subCmd
                 )
 
 
-updateColumn : UserRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
-updateColumn userRow inputMsg column =
-    case userRow of
+updateColumn : EditableRow -> Guarded.Input.Msg Int -> Column -> ( Column, Cmd (Guarded.Input.Msg Int) )
+updateColumn editableRow inputMsg column =
+    case editableRow of
         Carry ->
             let
                 ( userCarry, subCmd ) =

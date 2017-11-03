@@ -29,49 +29,41 @@ type alias Model =
 
 
 type Msg
-    = UserIntInputChanged UserIntInputMsg
-    | UserBorrowToggled UserBoolInputMsg
+    = DigitEdited DigitInfo
+    | BoolToggled ToggleInfo
 
 
-type alias UserIntInputMsg =
-    { userRow : IntUserRow
+type alias DigitInfo =
+    { editableRow : EditableIntRow
     , columnIndex : Int
     , inputMsg : Guarded.Input.Msg Int
     }
 
 
-type IntUserRow
+type EditableIntRow
     = RegrouppedFirstOperand
     | Result
 
 
-type alias UserBoolInputMsg =
-    { userRow : BoolUserRow
+type alias ToggleInfo =
+    { editableRow : EditableBoolRow
     , columnIndex : Int
     }
 
 
-type BoolUserRow
+type EditableBoolRow
     = BorrowFromRegrouppedFirstOperand
     | BorrowFromFirstOperand
 
 
-
--- TODO rename and factor out (?)
-
-
-guardedInputMsgToMsg : IntUserRow -> Int -> Guarded.Input.Msg Int -> Msg
-guardedInputMsgToMsg userRow columnIndex =
-    UserIntInputMsg userRow columnIndex >> UserIntInputChanged
+guardedInputMsgToMsgFunc : EditableIntRow -> Int -> Guarded.Input.Msg Int -> Msg
+guardedInputMsgToMsgFunc editableRow columnIndex =
+    DigitInfo editableRow columnIndex >> DigitEdited
 
 
-
--- TODO name is probably incorrect - check Html.Events.onDoubleClick
-
-
-boolInputMsgToMsg : BoolUserRow -> Int -> Msg
-boolInputMsgToMsg userRow columnIndex =
-    UserBorrowToggled <| UserBoolInputMsg userRow columnIndex
+boolInputMsgToMsgFunc : EditableBoolRow -> Int -> Msg
+boolInputMsgToMsgFunc editableRow columnIndex =
+    BoolToggled <| ToggleInfo editableRow columnIndex
 
 
 initializeFor : Int -> Int -> Result String Model
@@ -166,11 +158,6 @@ calculateColumn newColumn currentState =
         { borrow = borrowFromNext
         , columnsDone = List.concat [ [ calculatedColumn ], currentState.columnsDone ]
         }
-
-
-
--- TODO this is verbatim the same for Addition, Subtraction - can it be neatly factored out?
--- (verbatim the same still does not mean that the same 'Model' means the same type)
 
 
 solve : Model -> Model

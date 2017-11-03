@@ -1,6 +1,6 @@
 module Algorism.Subtraction.Austrian.View exposing (..)
 
-import Algorism.Subtraction.Austrian.Types exposing (Column, Model, Msg, guardedInputMsgToMsg, UserRow(..))
+import Algorism.Subtraction.Austrian.Types exposing (Column, Model, Msg, guardedInputMsgToMsgFunc, EditableRow(..))
 import Html exposing (Html, button, div, input, table, text, tr, td)
 import Html.Attributes exposing (class, classList, value, rowspan, colspan)
 import Guarded.Input
@@ -149,7 +149,7 @@ borrowTds maybeBorrow userBorrow columnIndex columnPosition =
                 , colspan 2
                 ]
                 [ input
-                    [ Guarded.Input.parseOnInput (guardedInputMsgToMsg Borrow columnIndex) Guarded.Input.Parsers.decimalDigitParser
+                    [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc Borrow columnIndex) Guarded.Input.Parsers.decimalDigitParser
                     , value <| Guarded.Input.inputString userBorrow
                     , classList
                         [ ( "algorism-subtr-austr-borrow-input", True )
@@ -253,7 +253,7 @@ resultTd correctnessClass columnIndex maybeResult userResult =
         [ classList [ ( "algorism-subtr-austr-result-td", True ), ( correctnessClass, True ) ]
         ]
         [ input
-            [ Guarded.Input.parseOnInput (guardedInputMsgToMsg Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
+            [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc Result columnIndex) Guarded.Input.Parsers.decimalDigitParser
             , value <| Guarded.Input.inputString userResult
             , classList
                 [ ( "algorism-subtr-austr-result-input", True )

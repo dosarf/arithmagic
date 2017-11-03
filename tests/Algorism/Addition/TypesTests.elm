@@ -15,7 +15,7 @@ inputIntModel =
 
 column : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> Column
 column carry firstOperand secondOperand result =
-    Column carry firstOperand secondOperand result inputIntModel inputIntModel
+    Column carry inputIntModel firstOperand secondOperand result inputIntModel
 
 
 testSuite : Test

@@ -4,7 +4,7 @@ import Test exposing (..)
 import Expect
 import String
 import Algorism.Subtraction.Austrian.State exposing (update, updateColumn)
-import Algorism.Subtraction.Austrian.Types exposing (Column, UserRow(..), Model, Msg(..), UserInputMsg)
+import Algorism.Subtraction.Austrian.Types exposing (Column, EditableRow(..), Model, Msg(..), DigitInfo)
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -36,7 +36,7 @@ inputIntModel5 =
 
 someMsg : Msg
 someMsg =
-    UserInputChanged (UserInputMsg Borrow 1 inputMsg5)
+    DigitEdited (DigitInfo Borrow 1 inputMsg5)
 
 
 someModel : Model

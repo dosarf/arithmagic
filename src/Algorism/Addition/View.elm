@@ -1,6 +1,6 @@
 module Algorism.Addition.View exposing (..)
 
-import Algorism.Addition.Types exposing (Column, Model, Msg, guardedInputMsgToMsg, UserRow(..))
+import Algorism.Addition.Types exposing (Column, Model, Msg, guardedInputMsgToMsgFunc, EditableRow(..))
 import Html exposing (Html, button, div, input, table, text, tr, td)
 import Html.Attributes exposing (class, classList, value)
 import Guarded.Input
@@ -53,8 +53,8 @@ maybeDigitToBlankOrString maybeDigit =
     Maybe.map (\digit -> toString digit) maybeDigit |> Maybe.withDefault ""
 
 
-editableRowView : UserRow -> Algorism.Addition.Types.Model -> (Algorism.Addition.Types.Column -> Maybe Int) -> (Algorism.Addition.Types.Column -> Guarded.Input.Model Int) -> Html Msg
-editableRowView userRow addition solutionSelector userInputSelector =
+editableRowView : EditableRow -> Algorism.Addition.Types.Model -> (Algorism.Addition.Types.Column -> Maybe Int) -> (Algorism.Addition.Types.Column -> Guarded.Input.Model Int) -> Html Msg
+editableRowView editableRow addition solutionSelector userInputSelector =
     tr [ class "algorism-addition-editable-tr" ]
         (List.append
             [ td
@@ -63,14 +63,14 @@ editableRowView userRow addition solutionSelector userInputSelector =
                 []
             ]
             (List.indexedMap
-                (\columnIndex column -> createInputTd userRow columnIndex (solutionSelector column) (userInputSelector column))
+                (\columnIndex column -> createInputTd editableRow columnIndex (solutionSelector column) (userInputSelector column))
                 addition.columns
             )
         )
 
 
-createInputTd : UserRow -> Int -> Maybe Int -> Guarded.Input.Model Int -> Html Msg
-createInputTd userRow columnIndex maybeDigit userInput =
+createInputTd : EditableRow -> Int -> Maybe Int -> Guarded.Input.Model Int -> Html Msg
+createInputTd editableRow columnIndex maybeDigit userInput =
     let
         userInputResult =
             Guarded.Input.toResult userInput
@@ -99,7 +99,7 @@ createInputTd userRow columnIndex maybeDigit userInput =
                 ]
             ]
             [ input
-                [ Guarded.Input.parseOnInput (guardedInputMsgToMsg userRow columnIndex) Guarded.Input.Parsers.decimalDigitParser
+                [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc editableRow columnIndex) Guarded.Input.Parsers.decimalDigitParser
                 , value <| Guarded.Input.inputString userInput
                 , classList
                     [ ( "algorism-addition-input", True )

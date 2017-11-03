@@ -7,10 +7,10 @@ import Algorism.Common.Util exposing (initializeForModel)
 
 type alias Column =
     { carry : Maybe Int
+    , userCarry : Guarded.Input.Model Int
     , firstOperand : Maybe Int
     , secondOperand : Maybe Int
     , result : Maybe Int
-    , userCarry : Guarded.Input.Model Int
     , userResult : Guarded.Input.Model Int
     }
 
@@ -21,28 +21,24 @@ type alias Model =
 
 
 type Msg
-    = UserInputChanged UserInputMsg
+    = DigitEdited DigitInfo
 
 
-type alias UserInputMsg =
-    { userRow : UserRow
+type alias DigitInfo =
+    { editableRow : EditableRow
     , columnIndex : Int
     , inputMsg : Guarded.Input.Msg Int
     }
 
 
-type UserRow
+type EditableRow
     = Carry
     | Result
 
 
-
--- TODO rename and factor out (?)
-
-
-guardedInputMsgToMsg : UserRow -> Int -> Guarded.Input.Msg Int -> Msg
-guardedInputMsgToMsg userRow columnIndex =
-    UserInputMsg userRow columnIndex >> UserInputChanged
+guardedInputMsgToMsgFunc : EditableRow -> Int -> (Guarded.Input.Msg Int -> Msg)
+guardedInputMsgToMsgFunc editableRow columnIndex =
+    DigitInfo editableRow columnIndex >> DigitEdited
 
 
 initializeFor : Int -> Int -> Result String Model
@@ -122,11 +118,6 @@ calculateColumn newColumn currentState =
         { carry = carryToNext
         , columnsDone = List.concat [ [ calculatedColumn ], currentState.columnsDone ]
         }
-
-
-
--- TODO this is verbatim the same for Addition, Subtraction - can it be neatly factored out?
--- (verbatim the same still does not mean that the same 'Model' means the same type)
 
 
 solve : Model -> Model

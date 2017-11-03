@@ -5,8 +5,6 @@ import Algorism.Common.Operator exposing (Operator(..))
 import Algorism.Common.Util exposing (initializeForModel)
 
 
--- TODO consider factoring out bits from Addition.Types.elm and this
--- TODO consider giving a better name for type UserRow (in both Addition and here)
 -- This implements the "Austrian method"
 -- described in http://web.sonoma.edu/users/w/wilsonst/courses/math_300/groupwork/altsub/aust.html
 
@@ -27,28 +25,24 @@ type alias Model =
 
 
 type Msg
-    = UserInputChanged UserInputMsg
+    = DigitEdited DigitInfo
 
 
-type alias UserInputMsg =
-    { userRow : UserRow
+type alias DigitInfo =
+    { editableRow : EditableRow
     , columnIndex : Int
     , inputMsg : Guarded.Input.Msg Int
     }
 
 
-type UserRow
+type EditableRow
     = Borrow
     | Result
 
 
-
--- TODO rename and factor out (?)
-
-
-guardedInputMsgToMsg : UserRow -> Int -> Guarded.Input.Msg Int -> Msg
-guardedInputMsgToMsg userRow columnIndex =
-    UserInputMsg userRow columnIndex >> UserInputChanged
+guardedInputMsgToMsgFunc : EditableRow -> Int -> Guarded.Input.Msg Int -> Msg
+guardedInputMsgToMsgFunc editableRow columnIndex =
+    DigitInfo editableRow columnIndex >> DigitEdited
 
 
 initializeFor : Int -> Int -> Result String Model
@@ -109,11 +103,6 @@ calculateColumn newColumn currentState =
         { borrow = borrowFromNext
         , columnsDone = List.concat [ [ calculatedColumn ], currentState.columnsDone ]
         }
-
-
-
--- TODO this is verbatim the same for Addition, Subtraction - can it be neatly factored out?
--- (verbatim the same still does not mean that the same 'Model' means the same type)
 
 
 solve : Model -> Model

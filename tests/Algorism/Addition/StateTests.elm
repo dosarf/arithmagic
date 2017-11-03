@@ -4,7 +4,7 @@ import Test exposing (..)
 import Expect
 import String
 import Algorism.Addition.State exposing (update, updateColumn)
-import Algorism.Addition.Types exposing (Column, UserRow(..), Model, Msg(..), UserInputMsg)
+import Algorism.Addition.Types exposing (Column, EditableRow(..), Model, Msg(..), DigitInfo)
 import Guarded.Input
 import Guarded.Input.Parsers
 
@@ -16,7 +16,7 @@ defaultInputIntModel =
 
 column : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> Column
 column carry firstOperand secondOperand result =
-    Column carry firstOperand secondOperand result defaultInputIntModel defaultInputIntModel
+    Column carry defaultInputIntModel firstOperand secondOperand result defaultInputIntModel
 
 
 someColumn : Column
@@ -36,7 +36,7 @@ inputIntModel5 =
 
 someMsg : Msg
 someMsg =
-    UserInputChanged (UserInputMsg Carry 1 inputMsg5)
+    DigitEdited (DigitInfo Carry 1 inputMsg5)
 
 
 someModel : Model
