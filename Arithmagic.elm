@@ -6,20 +6,25 @@ import Html.Attributes exposing (href, class, style)
 import Html.Events exposing (onClick)
 import Material
 import Material.Scheme
-import Material.Button as Button
 import Material.Options as Options exposing (css)
 import Material.Layout as Layout
-import Material.Color as Color
-import Material.List as List
 import Material.Toggles as Toggles
-import Debug exposing (log)
+import AdditionApp
+import StandardSubtractionApp
+import AustrianSubtractionApp
 
 
+-- import Material.Button as Button
+-- import Material.Color as Color
+-- import Material.List as List
 -- MODEL
 
 
 type alias Model =
     { exercise : ExerciseType
+    , additionModel : AdditionApp.Model
+    , standardSubtractionModel : StandardSubtractionApp.Model
+    , austrianSubtractionModel : AustrianSubtractionApp.Model
     , mdl : Material.Model
     }
 
@@ -27,6 +32,9 @@ type alias Model =
 model : Model
 model =
     { exercise = Addition
+    , additionModel = AdditionApp.initialModel
+    , standardSubtractionModel = StandardSubtractionApp.initialModel
+    , austrianSubtractionModel = AustrianSubtractionApp.initialModel
     , mdl = Material.model
     }
 
@@ -38,6 +46,9 @@ model =
 type Msg
     = SelectExercise ExerciseType
     | SelectSubtraction SubtractionType
+    | AdditionMsg AdditionApp.Msg
+    | StandardSubtractionMsg StandardSubtractionApp.Msg
+    | AustrianSubtractionMsg AustrianSubtractionApp.Msg
     | Mdl (Material.Msg Msg)
 
 
@@ -57,6 +68,33 @@ update msg model =
             ( { model | exercise = Subtraction selectedSubtraction }
             , Cmd.none
             )
+
+        AdditionMsg additionMsg ->
+            let
+                ( additionModel, additionCmd ) =
+                    AdditionApp.update additionMsg model.additionModel
+            in
+                ( { model | additionModel = additionModel }
+                , Cmd.map AdditionMsg additionCmd
+                )
+
+        StandardSubtractionMsg subtractionMsg ->
+            let
+                ( subtractionModel, subtractionCmd ) =
+                    StandardSubtractionApp.update subtractionMsg model.standardSubtractionModel
+            in
+                ( { model | standardSubtractionModel = subtractionModel }
+                , Cmd.map StandardSubtractionMsg subtractionCmd
+                )
+
+        AustrianSubtractionMsg subtractionMsg ->
+            let
+                ( subtractionModel, subtractionCmd ) =
+                    AustrianSubtractionApp.update subtractionMsg model.austrianSubtractionModel
+            in
+                ( { model | austrianSubtractionModel = subtractionModel }
+                , Cmd.map AustrianSubtractionMsg subtractionCmd
+                )
 
         -- Boilerplate: Mdl action handler.
         Mdl msg_ ->
@@ -90,10 +128,7 @@ view model =
             , main =
                 [ div
                     [ style [ ( "padding", "1rem" ) ] ]
-                    [ div
-                        []
-                        [ text ("Exercise: " ++ (exerciseToString model.exercise)) ]
-                    , subExerciseView model
+                    [ subExerciseView model
                     ]
                 ]
             }
@@ -103,28 +138,42 @@ subExerciseView : Model -> Html Msg
 subExerciseView model =
     case model.exercise of
         Addition ->
-            div [] []
+            Html.map AdditionMsg (AdditionApp.view model.additionModel)
 
-        Subtraction _ ->
+        Subtraction subtractionType ->
             div
                 []
-                (List.indexedMap
-                    (\index subtraction ->
-                        div
-                            []
-                            [ Toggles.radio Mdl
-                                [ 1, index ]
-                                model.mdl
-                                [ Toggles.value (isSelectedSubtraction model.exercise index)
-                                , Toggles.group "SubtractionRadioGroup"
-                                , Toggles.ripple
-                                , Options.onToggle (intToSubtraction index |> SelectSubtraction)
+                (List.append
+                    (List.indexedMap
+                        (\index subtraction ->
+                            div
+                                []
+                                [ Toggles.radio Mdl
+                                    [ 1, index ]
+                                    model.mdl
+                                    [ Toggles.value (isSelectedSubtraction model.exercise index)
+                                    , Toggles.group "SubtractionRadioGroup"
+                                    , Toggles.ripple
+                                    , Options.onToggle (intToSubtraction index |> SelectSubtraction)
+                                    ]
+                                    [ text <| subtractionToString subtraction ]
                                 ]
-                                [ text <| subtractionToString subtraction ]
-                            ]
+                        )
+                        subtractions
                     )
-                    subtractions
+                    [ subtractionView subtractionType model
+                    ]
                 )
+
+
+subtractionView : SubtractionType -> Model -> Html Msg
+subtractionView subtractionType model =
+    case subtractionType of
+        Standard ->
+            Html.map StandardSubtractionMsg (StandardSubtractionApp.view model.standardSubtractionModel)
+
+        Austrian ->
+            Html.map AustrianSubtractionMsg (AustrianSubtractionApp.view model.austrianSubtractionModel)
 
 
 
