@@ -1,6 +1,8 @@
 module Arithmagic exposing (..)
 
 import ExerciseTypes exposing (..)
+import Route exposing (Route, fromLocation)
+import Navigation exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (href, class, style)
 import Html.Events exposing (onClick)
@@ -39,6 +41,17 @@ model =
     }
 
 
+init : Location -> ( Model, Cmd Msg )
+init location =
+    let
+        exercise =
+            locationToExercise location
+    in
+        ( { model | exercise = exercise }
+        , Cmd.none
+        )
+
+
 
 -- ACTION, UPDATE
 
@@ -46,26 +59,71 @@ model =
 type Msg
     = SelectExercise ExerciseType
     | SelectSubtraction SubtractionType
+    | UrlChanged Navigation.Location
     | AdditionMsg AdditionApp.Msg
     | StandardSubtractionMsg StandardSubtractionApp.Msg
     | AustrianSubtractionMsg AustrianSubtractionApp.Msg
     | Mdl (Material.Msg Msg)
 
 
+subtractionTypeToHash : SubtractionType -> String
+subtractionTypeToHash subtraction =
+    if subtraction == Standard then
+        "#subtraction/standard"
+    else
+        "#subtraction/austrian"
 
--- Boilerplate: Msg clause for internal Mdl messages.
+
+exerciseTypeToHash : ExerciseType -> String
+exerciseTypeToHash exercise =
+    case exercise of
+        Addition ->
+            "#addition"
+
+        Subtraction subtraction ->
+            subtractionTypeToHash subtraction
+
+
+locationToExercise : Navigation.Location -> ExerciseType
+locationToExercise location =
+    let
+        route =
+            Maybe.withDefault Route.Addition <| fromLocation location
+    in
+        case route of
+            Route.Addition ->
+                Addition
+
+            Route.StandardSubtraction ->
+                Subtraction Standard
+
+            Route.AustrianSubtraction ->
+                Subtraction Austrian
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SelectExercise selectedExercise ->
-            ( { model | exercise = selectedExercise }
-            , Cmd.none
-            )
+            let
+                hash =
+                    exerciseTypeToHash selectedExercise
+            in
+                ( { model | exercise = selectedExercise }
+                , Navigation.newUrl hash
+                )
 
         SelectSubtraction selectedSubtraction ->
-            ( { model | exercise = Subtraction selectedSubtraction }
+            let
+                hash =
+                    subtractionTypeToHash selectedSubtraction
+            in
+                ( { model | exercise = Subtraction selectedSubtraction }
+                , Navigation.newUrl hash
+                )
+
+        UrlChanged location ->
+            ( { model | exercise = locationToExercise location }
             , Cmd.none
             )
 
@@ -184,8 +242,9 @@ subtractionView subtractionType model =
 
 main : Program Never Model Msg
 main =
-    Html.program
-        { init = ( model, Cmd.none )
+    Navigation.program
+        UrlChanged
+        { init = init
         , view = view
         , subscriptions = always Sub.none
         , update = update

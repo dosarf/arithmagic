@@ -1,7 +1,6 @@
 module ExerciseTypes exposing (..)
 
 import List.Extra exposing (elemIndex, getAt)
-import Debug exposing (log)
 
 
 -- SubtractionType

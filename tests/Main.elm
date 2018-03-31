@@ -11,12 +11,13 @@ import Algorism.Subtraction.Austrian.TypesTests
 import Algorism.Subtraction.Austrian.StateTests
 import Algorism.Subtraction.Standard.TypesTests
 import Algorism.Subtraction.Standard.StateTests
+import RouteTests
 
 
 main : TestProgram
 main =
     run emit <|
-        describe "Algorism tests"
+        describe "Arithmagic tests"
             [ Algorism.Common.UtilTests.testSuite
             , Algorism.Operands.StateTests.testSuite
             , Algorism.Addition.TypesTests.testSuite
@@ -25,6 +26,7 @@ main =
             , Algorism.Subtraction.Austrian.StateTests.testSuite
             , Algorism.Subtraction.Standard.TypesTests.testSuite
             , Algorism.Subtraction.Standard.StateTests.testSuite
+            , RouteTests.testSuite
             ]
 
 
