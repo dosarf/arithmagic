@@ -10,7 +10,9 @@ import Guarded.Input.Parsers
 {-
    TODO document these CSS classes:
    algorism-addition-table, algorism-addition-static-tr, algorism-addition-static-td,
-   algorism-addition-editable-tr, algorism-addition-editable-td,
+   algorism-addition-carry-tr,
+   algorism-addition-result-tr,
+   algorism-addition-editable-td,
    algorism-addition-input, algorism-addition-input-correct,
    algorism-addition-input-incorrect, algorism-addition-input-unnecessary, algorism-addition-input-missing,
    algorism-addition-input-correct-empty
@@ -55,18 +57,27 @@ maybeDigitToBlankOrString maybeDigit =
 
 editableRowView : EditableRow -> Algorism.Addition.Types.Model -> (Algorism.Addition.Types.Column -> Maybe Int) -> (Algorism.Addition.Types.Column -> Guarded.Input.Model Int) -> Html Msg
 editableRowView editableRow addition solutionSelector userInputSelector =
-    tr [ class "algorism-addition-editable-tr" ]
-        (List.append
-            [ td
-                [ class "algorism-addition-editable-td"
+    let
+        rowCssClass =
+            case editableRow of
+                Carry ->
+                    "algorism-addition-carry-tr"
+
+                Result ->
+                    "algorism-addition-result-tr"
+    in
+        tr [ class rowCssClass ]
+            (List.append
+                [ td
+                    [ class "algorism-addition-editable-td"
+                    ]
+                    []
                 ]
-                []
-            ]
-            (List.indexedMap
-                (\columnIndex column -> createInputTd editableRow columnIndex (solutionSelector column) (userInputSelector column))
-                addition.columns
+                (List.indexedMap
+                    (\columnIndex column -> createInputTd editableRow columnIndex (solutionSelector column) (userInputSelector column))
+                    addition.columns
+                )
             )
-        )
 
 
 createInputTd : EditableRow -> Int -> Maybe Int -> Guarded.Input.Model Int -> Html Msg

@@ -70,7 +70,11 @@ regrouppedFirstOperandTd columnIndex column =
         case ( userRegrouppedFirstOperand, column.userBorrowFromRegrouppedFirstOperand ) of
             ( "", _ ) ->
                 td
-                    [ class "algorism-subtr-std-rg1st-op-td" ]
+                    [ classList
+                        [ ( "algorism-subtr-std-rg1st-op-td", True )
+                        , ( correctnessClass, True )
+                        ]
+                    ]
                     [ input
                         [ Guarded.Input.parseOnInput (guardedInputMsgToMsgFunc RegrouppedFirstOperand columnIndex) undevigintiParser
                         , value ""
@@ -86,6 +90,7 @@ regrouppedFirstOperandTd columnIndex column =
                 td
                     [ classList
                         [ ( "algorism-subtr-std-rg1st-op-td", True )
+                        , ( correctnessClass, True )
                         , ( borrowCorrectnessClass, True )
                         ]
                     , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromRegrouppedFirstOperand columnIndex
@@ -105,6 +110,7 @@ regrouppedFirstOperandTd columnIndex column =
                 td
                     [ classList
                         [ ( "algorism-subtr-std-rg1st-op-td", True )
+                        , ( correctnessClass, True )
                         , ( borrowCorrectnessClass, True )
                         ]
                     , onDoubleClick <| boolInputMsgToMsgFunc BorrowFromRegrouppedFirstOperand columnIndex
