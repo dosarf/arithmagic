@@ -1,7 +1,7 @@
 module AustrianSubtractionApp exposing (..)
 
-import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (classList, value)
+import Html exposing (Html, div, input, section)
+import Html.Attributes exposing (class, classList, value)
 import Algorism.Common.Operator
 import Algorism.Operands.Types
 import Algorism.Operands.State
@@ -110,13 +110,14 @@ update message model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
-            [ text "Subtraction:"
-            , Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
+    section
+        []
+        [ div
+            [ class "austrian-subtraction-section" ]
+            [ Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
             ]
         , div
-            []
+            [ class "austrian-subtraction-section" ]
             [ Html.map SubtractionChanged (Algorism.Subtraction.Austrian.View.view model.subtraction)
             ]
         ]

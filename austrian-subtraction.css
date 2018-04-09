@@ -1,3 +1,9 @@
+.austrian-subtraction-section {
+    display: flex;
+    justify-content: center;
+    margin: 10px 10px;
+}
+
 .algorism-subtr-austr-input-correct {
     background-color: #80ff80;
 }
@@ -23,23 +29,20 @@ table.algorism-subtr-austr-table {
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   background-color:  azure;
   border-collapse: collapse;
+  line-height: initial;
 }
 
 tr.algorism-subtr-austr-result-tr {
   border-top: 3px solid #000000;
 }
 
-td.algorism-subtr-austr-borrow-td, td.algorism-subtr-austr-result-td {
+td.algorism-subtr-austr-borrow-td {
   padding: 0em;
   border: 1px solid #66a3ff;
 }
 
-input.algorism-subtr-austr-borrow-input {
-  font-size: .5em;
-  font-family: "Comic Sans MS", "Comic Sans", cursive;
-  width: 1em;
-  text-align: center;
-  border: none;
+td.algorism-subtr-austr-result-td {
+  padding: 0em;
 }
 
 td.algorism-subtr-austr-right-filler-td {
@@ -48,6 +51,14 @@ td.algorism-subtr-austr-right-filler-td {
 
 td.algorism-subtr-austr-first-operand-bottom-filler-td {
   border-bottom: 1px solid #66a3ff;
+}
+
+input.algorism-subtr-austr-borrow-input {
+  font-size: .5em;
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  width: 1em;
+  text-align: center;
+  border: none;
 }
 
 input.algorism-subtr-austr-result-input {

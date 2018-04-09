@@ -1,7 +1,7 @@
 module AdditionApp exposing (..)
 
-import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (classList, value)
+import Html exposing (Html, div, input, section)
+import Html.Attributes exposing (class, classList, value)
 import Algorism.Operands.Types
 import Algorism.Operands.State
 import Algorism.Operands.View
@@ -109,13 +109,14 @@ update message model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
-            [ text "Addition:"
-            , Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
+    section
+        []
+        [ div
+            [ class "addition-section" ]
+            [ Html.map InputChanged (Algorism.Operands.View.view model.inputModel)
             ]
         , div
-            []
+            [ class "addition-section" ]
             [ Html.map AdditionChanged (Algorism.Addition.View.view model.addition)
             ]
         ]

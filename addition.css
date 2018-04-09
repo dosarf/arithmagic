@@ -1,3 +1,9 @@
+.addition-section {
+    display: flex;
+    justify-content: center;
+    margin: 10px 10px;
+}
+
 .algorism-addition-input-correct {
     background-color: #80ff80;
 }
@@ -23,6 +29,7 @@ table.algorism-addition-table {
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   background-color:  azure;
   border-collapse: collapse;
+  line-height: initial;
 }
 
 tr.algorism-addition-result-tr {

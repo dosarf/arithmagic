@@ -1,3 +1,9 @@
+.standard-subtraction-section {
+    display: flex;
+    justify-content: center;
+    margin: 10px 10px;
+}
+
 .algorism-subtr-std-input-correct {
     background-color: #80ff80;
 }
@@ -23,6 +29,7 @@ table.algorism-subtr-std-table {
   font-family: "Comic Sans MS", "Comic Sans", cursive;
   background-color:  azure;
   border-collapse: collapse;
+  line-height: initial;
 }
 
 tr.algorism-subtr-std-result-tr {

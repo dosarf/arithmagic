@@ -68,10 +68,7 @@ editableRowView editableRow addition solutionSelector userInputSelector =
     in
         tr [ class rowCssClass ]
             (List.append
-                [ td
-                    [ class "algorism-addition-editable-td"
-                    ]
-                    []
+                [ td [] []
                 ]
                 (List.indexedMap
                     (\columnIndex column -> createInputTd editableRow columnIndex (solutionSelector column) (userInputSelector column))
