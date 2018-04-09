@@ -8,7 +8,8 @@ import Algorism.Operands.Types exposing (Model, Msg(..))
 
 init : Model
 init =
-    { firstOperand = Guarded.Input.init
+    { operandSize = 4
+    , firstOperand = Guarded.Input.init
     , secondOperand = Guarded.Input.init
     , firstParser = Guarded.Input.Parsers.nonNegativeIntParser
     , secondParser = Guarded.Input.Parsers.nonNegativeIntParser
@@ -16,9 +17,9 @@ init =
     }
 
 
-initWith : (String -> Guarded.Input.Msg Int) -> (String -> Guarded.Input.Msg Int) -> Model
-initWith firstParser secondParser =
-    Model Guarded.Input.init Guarded.Input.init firstParser secondParser Addition
+initWith : Int -> (String -> Guarded.Input.Msg Int) -> (String -> Guarded.Input.Msg Int) -> Model
+initWith operandSize firstParser secondParser =
+    Model operandSize Guarded.Input.init Guarded.Input.init firstParser secondParser Addition
 
 
 withOperator : Operator -> Model -> Model

@@ -46,7 +46,7 @@ workInProgressMsg =
 
 someModel : Model
 someModel =
-    Model validOperand12 validOperand34 Guarded.Input.Parsers.intParser Guarded.Input.Parsers.intParser Addition
+    Model 4 validOperand12 validOperand34 Guarded.Input.Parsers.intParser Guarded.Input.Parsers.intParser Addition
 
 
 testSuite : Test

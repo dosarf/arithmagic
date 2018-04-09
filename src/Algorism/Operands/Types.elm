@@ -5,7 +5,8 @@ import Algorism.Common.Operator exposing (Operator)
 
 
 type alias Model =
-    { firstOperand : Guarded.Input.Model Int
+    { operandSize : Int
+    , firstOperand : Guarded.Input.Model Int
     , secondOperand : Guarded.Input.Model Int
     , firstParser : String -> Guarded.Input.Msg Int
     , secondParser : String -> Guarded.Input.Msg Int

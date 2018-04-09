@@ -25,9 +25,14 @@ type alias Model =
     }
 
 
+maxOperandDigits : Int
+maxOperandDigits =
+    4
+
+
 maxOperand : Int
 maxOperand =
-    999
+    10 ^ maxOperandDigits - 1
 
 
 operandIntChecker : Int -> Result String Int
@@ -47,7 +52,7 @@ operandParser =
 
 initialModel : Model
 initialModel =
-    { inputModel = Algorism.Operands.State.initWith operandParser operandParser
+    { inputModel = Algorism.Operands.State.initWith maxOperandDigits operandParser operandParser
     , maybeOperands = Nothing
     , addition = Algorism.Addition.State.init
     }
